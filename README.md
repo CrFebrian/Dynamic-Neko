@@ -3,7 +3,7 @@
 Dynamic island untuk Windows 10 dan 11 dengan maskot neko. Fokus: pengingat task harian, sesi baca, anime, dan musik.
 Nama kerja, bisa diganti.
 
-Status: **Tahap 0** (kerangka proyek + perilaku jendela). Fitur lengkap masih berupa prototipe web.
+Status: **Tahap 1**. Sudah ada: task tersimpan (SQLite), sesi baca (timer 25/50/5 menit), target halaman + streak, istirahat mata 20-20-20, ikon tray, animasi buka dan tutup. Musik, anime, dan suara latar menyusul.
 
 ## Yang perlu dipasang (Windows 10)
 
@@ -16,12 +16,27 @@ Status: **Tahap 0** (kerangka proyek + perilaku jendela). Fitur lengkap masih be
 
 ```powershell
 npm install
-npm test            # 23 test logika, tidak butuh Rust
+npm test            # 50 test logika, tidak butuh Rust
 npm run typecheck
 npm run dev         # UI di browser (http://localhost:1420), tanpa jendela Tauri
 npm run tauri dev   # jendela island sungguhan. Build Rust pertama bisa 5-10 menit
 npm run tauri build # installer NSIS di src-tauri/target/release/bundle/nsis
 ```
+
+## Perubahan Tahap 1: setelah mengganti file
+
+Jalankan `npm install` lagi (ada paket baru `@tauri-apps/plugin-sql`). Build Rust berikutnya akan lebih lama karena SQLite ikut dikompilasi.
+Data tersimpan di `yomi.db` dalam folder konfigurasi aplikasi (`%APPDATA%\app.yomiisland.desktop`).
+
+## Daftar uji Tahap 1
+
+- [ ] Klik × atau tekan Esc: panel mengecil dengan animasi, lalu pill muncul. Tidak ada kedipan atau jendela terpotong.
+- [ ] Buka panel: tidak terpotong saat animasi masuk.
+- [ ] Tab Baca: Mulai, Jeda, Ulang, ganti mode. Sisa waktu di pill ikut berjalan saat panel ditutup. Saat selesai: maskot semangat + bunyi.
+- [ ] Tambah halaman sampai target tercapai: muncul pesan, streak bertambah.
+- [ ] Tab Santai: pilih interval, "Coba sekarang". Pill menampilkan hitungan 20 detik, maskot tidur.
+- [ ] Tambah task, tutup aplikasi lewat tray, buka lagi: task dan pengaturan masih ada.
+- [ ] Ikon di tray: menu "Tampilkan / sembunyikan" dan "Keluar" berfungsi.
 
 ## Daftar uji Tahap 0 (di laptop Windows 10)
 

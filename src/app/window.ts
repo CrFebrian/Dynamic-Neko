@@ -8,6 +8,8 @@
  * Click-through satu layar penuh dipertimbangkan di tahap berikutnya.
  */
 
+import { inTauri } from '../lib/env.ts';
+
 export type WindowMode = 'collapsed' | 'expanded';
 
 /** Ukuran jendela dalam piksel logis. */
@@ -15,9 +17,6 @@ export const WINDOW_SIZE: Record<WindowMode, { w: number; h: number }> = {
   collapsed: { w: 360, h: 84 },
   expanded: { w: 460, h: 440 },
 };
-
-export const inTauri = (): boolean =>
-  typeof window !== 'undefined' && '__TAURI_INTERNALS__' in window;
 
 export async function layoutWindow(mode: WindowMode): Promise<void> {
   if (!inTauri()) return;
