@@ -1,6 +1,8 @@
 import { useState } from 'react';
 import { Neko } from '../mascot/Neko.tsx';
 import { left, mmss } from '../lib/time.ts';
+import type { MediaAction, MediaInfo } from '../lib/system.ts';
+import type { WindowDrag } from '../app/useWindowDrag.ts';
 import { nextTask, pendingCount, type Task } from '../features/tasks/tasks.ts';
 import { MODES, remaining, type TimerMode, type TimerState } from '../features/reading/timer.ts';
 import type { DayRecord } from '../features/reading/streak.ts';
@@ -9,16 +11,17 @@ import type { PillView } from './pillState.ts';
 import type { IslandStyle } from './types.ts';
 import { TodayTab } from './tabs/TodayTab.tsx';
 import { ReadTab } from './tabs/ReadTab.tsx';
+import { MusicTab } from './tabs/MusicTab.tsx';
 import { ChillTab } from './tabs/ChillTab.tsx';
-import { SettingsTab } from './tabs/SettingsTab.tsx';
+import { SettingsTab, type SimControls } from './tabs/SettingsTab.tsx';
 
 type TabKey = 'today' | 'read' | 'anime' | 'music' | 'chill' | 'set';
 
-const TABS: ReadonlyArray<{ key: TabKey; label: string; phase?: string }> = [
+const TABS: ReadonlyArray<{ key: TabKey; label: string }> = [
   { key: 'today', label: 'Hari ini' },
   { key: 'read', label: 'Baca' },
-  { key: 'anime', label: 'Anime', phase: 'Tahap 3' },
-  { key: 'music', label: 'Musik', phase: 'Tahap 2' },
+  { key: 'anime', label: 'Anime' },
+  { key: 'music', label: 'Musik' },
   { key: 'chill', label: 'Santai' },
   { key: 'set', label: 'Atur' },
 ];
@@ -27,13 +30,20 @@ export interface PanelProps {
   now: number;
   view: PillView;
   closing: boolean;
+  drag: WindowDrag;
   style: IslandStyle;
   beep: boolean;
+  meetingMode: boolean;
+  watchMode: boolean;
+  recording: boolean;
   tasks: readonly Task[];
   timer: TimerState;
   day: DayRecord;
   streak: number;
   eye: EyeState;
+  media: MediaInfo | null;
+  mediaAt: number;
+  sim: SimControls | null;
   onClose: () => void;
   onToggleTask: (id: number) => void;
   onDeleteTask: (id: number) => void;
@@ -45,13 +55,18 @@ export interface PanelProps {
   onGoal: (delta: number) => void;
   onEyeInterval: (min: number) => void;
   onEyeNow: () => void;
+  onMedia: (a: MediaAction) => void;
   onStyle: (s: IslandStyle) => void;
   onBeep: (on: boolean) => void;
+  onMeetingMode: (on: boolean) => void;
+  onWatchMode: (on: boolean) => void;
+  onRecording: (on: boolean) => void;
   onQuit: () => void;
 }
 
 function bubble(p: PanelProps): string {
   if (eyeActive(p.eye, p.now)) return `Pandang yang jauh dulu ya, ${eyeSecondsLeft(p.eye, p.now)} detik lagi.`;
+  if (p.view.dot === 'mic') return 'Mode rapat. Pengingat kutahan dulu.';
   if (p.timer.running) {
     return `Sesi ${MODES[p.timer.mode].label.toLowerCase()} berjalan, sisa ${mmss(Math.ceil(remaining(p.timer, p.now) / 1000))}.`;
   }
@@ -65,11 +80,10 @@ function bubble(p: PanelProps): string {
 
 export function Panel(p: PanelProps) {
   const [tab, setTab] = useState<TabKey>('today');
-  const current = TABS.find((t) => t.key === tab);
 
   return (
     <div className={`panel${p.closing ? ' closing' : ''}`} role="dialog" aria-label="Yomi Island">
-      <div className="phead">
+      <div className="phead" {...p.drag.dragProps}>
         <div className="big">
           <Neko state={p.view.hidden ? 'idle' : p.view.mascot} />
         </div>
@@ -97,14 +111,28 @@ export function Panel(p: PanelProps) {
               onGoal={p.onGoal}
             />
           )}
+          {tab === 'music' && (
+            <MusicTab now={p.now} media={p.media} mediaAt={p.mediaAt} onControl={p.onMedia} simulated={p.sim !== null} />
+          )}
           {tab === 'chill' && <ChillTab now={p.now} eye={p.eye} onInterval={p.onEyeInterval} onNow={p.onEyeNow} />}
           {tab === 'set' && (
-            <SettingsTab style={p.style} beep={p.beep} onStyle={p.onStyle} onBeep={p.onBeep} onQuit={p.onQuit} />
+            <SettingsTab
+              style={p.style}
+              beep={p.beep}
+              meetingMode={p.meetingMode}
+              watchMode={p.watchMode}
+              recording={p.recording}
+              sim={p.sim}
+              onStyle={p.onStyle}
+              onBeep={p.onBeep}
+              onMeetingMode={p.onMeetingMode}
+              onWatchMode={p.onWatchMode}
+              onRecording={p.onRecording}
+              onQuit={p.onQuit}
+            />
           )}
-          {(tab === 'anime' || tab === 'music') && (
-            <p className="note first">
-              {current?.label} dikerjakan di {current?.phase}. Tampilan lengkapnya sudah ada di prototipe.
-            </p>
+          {tab === 'anime' && (
+            <p className="note first">Anime dikerjakan di Tahap 3. Tampilan lengkapnya sudah ada di prototipe.</p>
           )}
         </div>
       </div>

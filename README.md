@@ -3,7 +3,7 @@
 Dynamic island untuk Windows 10 dan 11 dengan maskot neko. Fokus: pengingat task harian, sesi baca, anime, dan musik.
 Nama kerja, bisa diganti.
 
-Status: **Tahap 1**. Sudah ada: task tersimpan (SQLite), sesi baca (timer 25/50/5 menit), target halaman + streak, istirahat mata 20-20-20, ikon tray, animasi buka dan tutup. Musik, anime, dan suara latar menyusul.
+Status: **Tahap 2**. Tambahan Tahap 2: bayangan dihapus, island bisa digeser kiri-kanan (posisi tersimpan sebagai pecahan lebar layar, tidak menempel tepi), tab Musik (Spotify/browser lewat SMTC), mode rapat (mikrofon aktif), mode nonton (layar penuh, island disembunyikan), penanda rekam layar manual. Dari Tahap 1: task tersimpan (SQLite), sesi baca (timer 25/50/5 menit), target halaman + streak, istirahat mata 20-20-20, ikon tray, animasi buka dan tutup. Musik, anime, dan suara latar menyusul.
 
 ## Yang perlu dipasang (Windows 10)
 
@@ -16,7 +16,7 @@ Status: **Tahap 1**. Sudah ada: task tersimpan (SQLite), sesi baca (timer 25/50/
 
 ```powershell
 npm install
-npm test            # 50 test logika, tidak butuh Rust
+npm test            # 69 test logika, tidak butuh Rust
 npm run typecheck
 npm run dev         # UI di browser (http://localhost:1420), tanpa jendela Tauri
 npm run tauri dev   # jendela island sungguhan. Build Rust pertama bisa 5-10 menit
@@ -70,3 +70,16 @@ src-tauri/        Tauri 2: konfigurasi jendela, izin minimal, ikon
 ## Lisensi
 
 Lihat `LICENSE.txt` (draf). Belum final, baca catatannya.
+
+## Daftar uji Tahap 2
+
+Rust Tahap 2 (crate `windows` 0.61, `winreg`) belum pernah dikompilasi; build pertama akan lebih lama. Jalankan `npm install` lalu `npm run tauri dev`.
+
+- Geser header/pill ke kiri dan kanan di skala layar 100%, 125%, 150%: island berhenti 8 px dari tepi, tidak terpotong.
+- Tutup lalu buka aplikasi: posisi terakhir kembali.
+- Tidak ada bayangan gelap di belakang pill dan panel.
+- Putar lagu di Spotify atau browser: judul, artis, dan tombol prev/play/next di tab Musik bekerja.
+- Panggilan di aplikasi yang memakai mikrofon: pill masuk mode rapat, notifikasi ditahan; setelah selesai muncul ringkasan.
+- Video layar penuh: island hilang, kembali saat keluar layar penuh.
+- Sakelar Penanda rekam layar: titik merah muncul di pill.
+- Catatan: deteksi mikrofon lewat registry bisa positif palsu bila aplikasi crash saat memakai mic.

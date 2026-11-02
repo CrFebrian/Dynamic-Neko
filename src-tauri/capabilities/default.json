@@ -1,12 +1,15 @@
 {
   "$schema": "../gen/schemas/desktop-schema.json",
   "identifier": "default",
-  "description": "Izin minimal untuk jendela island: ukuran, posisi, tampil, tutup, dan database lokal.",
+  "description": "Izin minimal untuk jendela island: ukuran, posisi, tampil/sembunyi, tutup, dan database lokal.",
   "windows": ["island"],
   "permissions": [
     "core:window:allow-set-size",
     "core:window:allow-set-position",
+    "core:window:allow-outer-position",
+    "core:window:allow-outer-size",
     "core:window:allow-show",
+    "core:window:allow-hide",
     "core:window:allow-close",
     "core:window:allow-current-monitor",
     "core:window:allow-primary-monitor",

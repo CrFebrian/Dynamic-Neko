@@ -1,5 +1,7 @@
-// Tahap 1: plugin SQLite + ikon tray. Kontrol jendela tetap dari frontend (src/app/window.ts).
-// Kode Rust khusus Windows (musik, mic, fullscreen) menyusul di Tahap 2.
+// Tahap 2: membaca keadaan sistem (layar penuh, mikrofon, pemutar media) untuk frontend.
+// Kontrol jendela tetap dari frontend (src/app/window.ts).
+
+mod system;
 
 use tauri::{
     menu::{Menu, MenuItem},
@@ -9,9 +11,26 @@ use tauri::{
 
 const WINDOW_LABEL: &str = "island";
 
+/// Snapshot keadaan sistem. Dijalankan di thread terpisah karena memanggil API Windows yang blocking.
+#[tauri::command]
+async fn system_snapshot() -> Result<system::Snapshot, String> {
+    tauri::async_runtime::spawn_blocking(system::snapshot)
+        .await
+        .map_err(|e| e.to_string())
+}
+
+/// Perintah pemutar: "toggle", "next", atau "prev". Nilai lain ditolak.
+#[tauri::command]
+async fn media_control(action: String) -> Result<(), String> {
+    tauri::async_runtime::spawn_blocking(move || system::media_control(&action))
+        .await
+        .map_err(|e| e.to_string())?
+}
+
 pub fn run() {
     tauri::Builder::default()
         .plugin(tauri_plugin_sql::Builder::default().build())
+        .invoke_handler(tauri::generate_handler![system_snapshot, media_control])
         .setup(|app| {
             let toggle = MenuItem::with_id(app, "toggle", "Tampilkan / sembunyikan island", true, None::<&str>)?;
             let quit = MenuItem::with_id(app, "quit", "Keluar", true, None::<&str>)?;
