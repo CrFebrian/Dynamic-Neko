@@ -2,6 +2,7 @@ import type { CSSProperties } from 'react';
 import { estimatePosition, hueFromText } from '../../lib/media.ts';
 import type { MediaAction, MediaInfo } from '../../lib/system.ts';
 import { mmss } from '../../lib/time.ts';
+import { LyricsBlock } from './LyricsBlock.tsx';
 
 interface Props {
   now: number;
@@ -72,6 +73,7 @@ export function MusicTab({ now, media, mediaAt, onControl, simulated }: Props) {
           <Icon d={NEXT} />
         </button>
       </div>
+      <LyricsBlock title={media.title} artist={media.artist} durationSec={media.durationSec} pos={pos} />
       {simulated && <p className="note">Data simulasi. Di aplikasi Windows, ini dibaca dari pemutar yang aktif.</p>}
     </>
   );

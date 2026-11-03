@@ -1,3 +1,7 @@
+import { dayKey } from '../../features/reading/streak.ts';
+import { quoteOfDay } from '../../features/quotes/quotes.ts';
+import { AmbientSection } from './AmbientSection.tsx';
+import { GachaSection } from './GachaSection.tsx';
 import { eyeActive, eyeMinutesLeft, eyeSecondsLeft, type EyeState } from '../../features/eye/eyeRest.ts';
 
 interface Props {
@@ -41,8 +45,10 @@ export function ChillTab({ now, eye, onInterval, onNow }: Props) {
             ? 'Pengingat mati.'
             : `Pengingat berikutnya dalam ${mins} mnt.`}
       </p>
-      <div className="sec">Segera hadir</div>
-      <p className="note first">Suara latar, timer game, dan kutipan harian dikerjakan di Tahap 3.</p>
+      <AmbientSection />
+      <GachaSection now={now} />
+      <div className="sec">Kutipan hari ini</div>
+      <p className="note first quote">{quoteOfDay(dayKey(now))}</p>
     </>
   );
 }

@@ -12,6 +12,8 @@ import type { IslandStyle } from './types.ts';
 import { TodayTab } from './tabs/TodayTab.tsx';
 import { ReadTab } from './tabs/ReadTab.tsx';
 import { MusicTab } from './tabs/MusicTab.tsx';
+import { AnimeTab } from './tabs/AnimeTab.tsx';
+import { BooksSection } from './tabs/BooksSection.tsx';
 import { ChillTab } from './tabs/ChillTab.tsx';
 import { SettingsTab, type SimControls } from './tabs/SettingsTab.tsx';
 
@@ -111,6 +113,7 @@ export function Panel(p: PanelProps) {
               onGoal={p.onGoal}
             />
           )}
+          {tab === 'read' && <BooksSection />}
           {tab === 'music' && (
             <MusicTab now={p.now} media={p.media} mediaAt={p.mediaAt} onControl={p.onMedia} simulated={p.sim !== null} />
           )}
@@ -131,9 +134,7 @@ export function Panel(p: PanelProps) {
               onQuit={p.onQuit}
             />
           )}
-          {tab === 'anime' && (
-            <p className="note first">Anime dikerjakan di Tahap 3. Tampilan lengkapnya sudah ada di prototipe.</p>
-          )}
+          {tab === 'anime' && <AnimeTab now={p.now} />}
         </div>
       </div>
 

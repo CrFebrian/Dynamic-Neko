@@ -3,7 +3,7 @@
 Dynamic island untuk Windows 10 dan 11 dengan maskot neko. Fokus: pengingat task harian, sesi baca, anime, dan musik.
 Nama kerja, bisa diganti.
 
-Status: **Tahap 2**. Tambahan Tahap 2: bayangan dihapus, island bisa digeser kiri-kanan (posisi tersimpan sebagai pecahan lebar layar, tidak menempel tepi), tab Musik (Spotify/browser lewat SMTC), mode rapat (mikrofon aktif), mode nonton (layar penuh, island disembunyikan), penanda rekam layar manual. Dari Tahap 1: task tersimpan (SQLite), sesi baca (timer 25/50/5 menit), target halaman + streak, istirahat mata 20-20-20, ikon tray, animasi buka dan tutup. Musik, anime, dan suara latar menyusul.
+Status: **Tahap 3 (sebagian)**. Tambahan Tahap 3: tab Anime (hitung mundur episode dari AniList), lirik berjalan (LRCLIB, mati secara default), suara latar (hujan/angin/putih, dibuat dengan Web Audio), timer reset harian game, progres buku, kutipan harian. Update manga (MangaDex) ditunda. Dari Tahap 2: Tambahan Tahap 2: bayangan dihapus, island bisa digeser kiri-kanan (posisi tersimpan sebagai pecahan lebar layar, tidak menempel tepi), tab Musik (Spotify/browser lewat SMTC), mode rapat (mikrofon aktif), mode nonton (layar penuh, island disembunyikan), penanda rekam layar manual. Dari Tahap 1: task tersimpan (SQLite), sesi baca (timer 25/50/5 menit), target halaman + streak, istirahat mata 20-20-20, ikon tray, animasi buka dan tutup. Musik, anime, dan suara latar menyusul.
 
 ## Yang perlu dipasang (Windows 10)
 
@@ -16,7 +16,7 @@ Status: **Tahap 2**. Tambahan Tahap 2: bayangan dihapus, island bisa digeser kir
 
 ```powershell
 npm install
-npm test            # 69 test logika, tidak butuh Rust
+npm test            # 101 test logika, tidak butuh Rust
 npm run typecheck
 npm run dev         # UI di browser (http://localhost:1420), tanpa jendela Tauri
 npm run tauri dev   # jendela island sungguhan. Build Rust pertama bisa 5-10 menit
@@ -83,3 +83,14 @@ Rust Tahap 2 (crate `windows` 0.61, `winreg`) belum pernah dikompilasi; build pe
 - Video layar penuh: island hilang, kembali saat keluar layar penuh.
 - Sakelar Penanda rekam layar: titik merah muncul di pill.
 - Catatan: deteksi mikrofon lewat registry bisa positif palsu bila aplikasi crash saat memakai mic.
+
+## Daftar uji Tahap 3
+
+Tidak ada dependency npm atau crate baru, jadi `npm install` tidak perlu diulang. Yang menyentuh internet: AniList (judul yang kamu cari) dan LRCLIB (judul+artis lagu, hanya bila Lirik dinyalakan). CSP sudah mengizinkan kedua host itu saja.
+
+- Anime: cari "Frieren", muncul hitung mundur. Tutup aplikasi, buka lagi: daftar tetap ada. Matikan internet: muncul pesan, aplikasi tidak error.
+- Lirik: putar lagu populer di Spotify, nyalakan Lirik di tab Musik. Baris berjalan seiring lagu. Bila tidak ketemu, muncul "Lirik tidak ditemukan".
+- Suara latar: pilih Hujan, tutup panel, suara tetap jalan. Tekan lagi untuk berhenti.
+- Timer game: tambah "Game 04:00", hitung mundur sesuai jam lokal.
+- Buku: tambah buku 200 halaman, tombol +10/-10 tidak keluar dari 0..200.
+- Belum terverifikasi: AniList/LRCLIB mengizinkan CORS dari WebView Tauri. Bila ada error "Failed to fetch" di konsol, kabari saya (solusinya lewat Rust).
