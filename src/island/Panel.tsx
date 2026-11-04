@@ -55,6 +55,9 @@ export interface PanelProps {
   onMedia: (a: MediaAction) => void;
   onRecording: (on: boolean) => void;
   onOpenSettings: () => void;
+  /** Kursor masuk/keluar panel; `buttons` = tombol mouse yang sedang ditekan saat keluar. */
+  onPanelEnter: () => void;
+  onPanelLeave: (buttons: number) => void;
 }
 
 function bubble(p: PanelProps): string {
@@ -79,7 +82,13 @@ export function Panel(p: PanelProps) {
   };
 
   return (
-    <div className={`panel${p.closing ? ' closing' : ''}`} role="dialog" aria-label="Yomi Island">
+    <div
+      className={`panel${p.closing ? ' closing' : ''}`}
+      role="dialog"
+      aria-label="Yomi Island"
+      onPointerEnter={p.onPanelEnter}
+      onPointerLeave={(e) => p.onPanelLeave(e.buttons)}
+    >
       <div className="phead" {...p.drag.dragProps}>
         <div className="big">
           <Neko state={p.view.hidden ? 'idle' : p.view.mascot} />

@@ -12,7 +12,7 @@ export type WindowMode = 'collapsed' | 'expanded';
 
 /** Ukuran jendela dalam piksel logis. */
 export const WINDOW_SIZE: Record<WindowMode, { w: number; h: number }> = {
-  collapsed: { w: 360, h: 84 },
+  collapsed: { w: 360, h: 48 },
   expanded: { w: 460, h: 440 },
 };
 
