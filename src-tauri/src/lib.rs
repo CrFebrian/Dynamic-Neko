@@ -1,7 +1,9 @@
 // Membaca keadaan sistem (layar penuh, mikrofon, media, baterai), jendela Pengaturan, dan HTTP keluar.
 // Kontrol jendela tetap dari frontend (src/app/window.ts).
 
+mod applog;
 mod system;
+mod util;
 
 use tauri::{
     menu::{Menu, MenuItem},
@@ -35,6 +37,33 @@ async fn open_settings(app: tauri::AppHandle) -> Result<(), String> {
     show_settings(&app).map_err(|e| e.to_string())
 }
 
+/// Catat error dari frontend ke error.log.
+#[tauri::command]
+fn log_error(app: tauri::AppHandle, source: String, message: String) -> Result<(), String> {
+    applog::append(&app, &source, &message)
+}
+
+/// Akhir error.log, untuk dilampirkan ke laporan masalah.
+#[tauri::command]
+fn read_error_log(app: tauri::AppHandle) -> Result<String, String> {
+    applog::tail(&app, 1500)
+}
+
+/// Buka folder log dan pengaturan (berisi error.log dan yomi.db).
+#[tauri::command]
+fn open_data_dir(app: tauri::AppHandle) -> Result<(), String> {
+    applog::open_target(applog::dir(&app)?.as_os_str())
+}
+
+/// Buka tautan di browser. Hanya URL di daftar putih (form laporan GitHub dan Saweria).
+#[tauri::command]
+fn open_url(url: String) -> Result<(), String> {
+    if !util::url_allowed(&url) {
+        return Err("URL tidak diizinkan".into());
+    }
+    applog::open_target(std::ffi::OsStr::new(&url))
+}
+
 #[tauri::command]
 fn quit_app(app: tauri::AppHandle) {
     app.exit(0);
@@ -60,7 +89,7 @@ pub fn run() {
     tauri::Builder::default()
         .plugin(tauri_plugin_sql::Builder::default().build())
         .plugin(tauri_plugin_http::init())
-        .invoke_handler(tauri::generate_handler![system_snapshot, media_control, open_settings, quit_app])
+        .invoke_handler(tauri::generate_handler![system_snapshot, media_control, open_settings, quit_app, log_error, read_error_log, open_data_dir, open_url])
         .setup(|app| {
             let toggle = MenuItem::with_id(app, "toggle", "Tampilkan / sembunyikan island", true, None::<&str>)?;
             let settings = MenuItem::with_id(app, "settings", "Pengaturan", true, None::<&str>)?;

@@ -3,6 +3,8 @@ import { quitApp } from '../app/window.ts';
 import { notifySettingsChanged, onSettingsChanged } from '../lib/bus.ts';
 import { DEFAULT_SETTINGS, EYE_OPTIONS, GOAL_MAX, GOAL_MIN, loadSettings, saveSetting, type SettingKey, type Settings } from '../lib/settings.ts';
 import { getStore } from '../lib/store.ts';
+import { openDataDir, openExternal, readErrorLog } from '../lib/external.ts';
+import { describeOs, issueUrl, lastLines, SAWERIA_URL } from '../lib/report.ts';
 import { THEME_LABEL, THEME_PREFS } from '../lib/theme.ts';
 import { Switch } from '../ui/Switch.tsx';
 import { useTheme } from '../ui/useTheme.ts';
@@ -15,7 +17,7 @@ const CATS: ReadonlyArray<{ key: Cat; label: string; desc: string }> = [
   { key: 'fokus', label: 'Mode fokus', desc: 'Rapat dan menonton.' },
   { key: 'pengingat', label: 'Pengingat', desc: 'Istirahat mata, target baca, dan notifikasi di pill.' },
   { key: 'konten', label: 'Anime, manga, lirik', desc: 'Sumber data dan bahasa.' },
-  { key: 'tentang', label: 'Tentang', desc: 'Versi, privasi, dan keluar.' },
+  { key: 'tentang', label: 'Tentang', desc: 'Versi, bantuan, dan dukungan.' },
 ];
 
 function useSettings() {
@@ -72,6 +74,16 @@ export function SettingsApp() {
   const { cfg, update, ready } = useSettings();
   useTheme(cfg.theme);
   const [cat, setCat] = useState<Cat>('umum');
+  const [msg, setMsg] = useState<string | null>(null);
+  const run = (fn: () => Promise<void>, fail: string) => {
+    setMsg(null);
+    fn().catch((e: unknown) => setMsg(`${fail} ${e instanceof Error ? e.message : String(e)}`));
+  };
+  const report = () =>
+    run(async () => {
+      const log = lastLines(await readErrorLog(), 10, 1500);
+      await openExternal(issueUrl({ version: APP_VERSION, os: describeOs(navigator.userAgent), log }));
+    }, 'Gagal membuka form laporan.');
   const info = CATS.find((c) => c.key === cat) ?? CATS[0];
 
   return (
@@ -96,7 +108,7 @@ export function SettingsApp() {
         {cat === 'umum' && (
           <>
             <Card>
-              <Row title="Tema" hint="Gelap, terang, atau mengikuti pengaturan terang/gelap Windows. Berlaku di island dan jendela ini.">
+              <Row title="Tema" hint="Gelap, terang, atau mengikuti pengaturan terang/gelap Windows.">
                 <div className="seg" role="group" aria-label="Tema">
                   {THEME_PREFS.map((t) => (
                     <button key={t} aria-pressed={cfg.theme === t} onClick={() => update('theme', t)}>
@@ -115,6 +127,10 @@ export function SettingsApp() {
                   </button>
                 </div>
               </Row>
+            </Card>
+            <h2>Perilaku</h2>
+            <Card>
+              <Switch on={cfg.autoClose} onChange={(v) => update('autoClose', v)} label="Tutup otomatis saat kursor keluar" hint="Panel kembali jadi pill kecil sesaat setelah kursor meninggalkannya, tanpa menekan ×. Tidak menutup saat kamu sedang mengetik." />
             </Card>
             <h2>Isi pill saat diam</h2>
             <Card>
@@ -194,25 +210,46 @@ export function SettingsApp() {
               </Row>
               <Switch on={cfg.lyrics} onChange={(v) => update('lyrics', v)} label="Lirik berjalan" hint="Judul dan artis lagu yang diputar dikirim ke LRCLIB untuk mencari lirik." />
             </Card>
-            <p className="note">Daftar anime dan manga dikelola di panel island, tab Anime.</p>
+            <p className="note">Daftar anime dan manga dikelola di panel island, tab Anime. Layanan online yang dipakai: AniList (judul/ID anime), MangaDex (judul/ID manga), LRCLIB (judul dan artis lagu, bila Lirik nyala). Task, buku, dan statistik baca hanya disimpan di laptop ini.</p>
           </>
         )}
 
         {cat === 'tentang' && (
           <>
             <Card>
-              <Row title="Yomi Island" hint={`Versi ${APP_VERSION}. Gratis untuk pemakaian pribadi, tidak dijual.`}>
-                <span />
+              <Row title="Yomi Island" hint="Gratis untuk pemakaian pribadi, tidak dijual.">
+                <span className="mono">v{APP_VERSION}</span>
               </Row>
             </Card>
-            <h2>Data yang keluar dari laptop</h2>
+
+            <h2>Ada masalah?</h2>
             <Card>
-              <div className="rowset">
-                <small className="plain">
-                  Hanya tiga layanan, dan hanya saat fiturnya dipakai: AniList (judul anime yang kamu cari dan ID anime di daftarmu), MangaDex (judul dan ID manga), LRCLIB (judul dan artis lagu, bila Lirik nyala). Task, buku, dan statistik baca hanya disimpan di laptop ini.
-                </small>
-              </div>
+              <Row title="Laporkan masalah" hint="Membuka form GitHub di browser. Versi, Windows, dan 10 baris error terakhir terisi otomatis; periksa dan ubah dulu sebelum mengirim.">
+                <button className="btn" onClick={report}>
+                  Buka form
+                </button>
+              </Row>
             </Card>
+
+            <h2>Folder log dan pengaturan</h2>
+            <Card>
+              <Row title="Buka folder" hint="Berisi error.log (catatan error, bisa dilampirkan saat melaporkan masalah) dan yomi.db (task, buku, dan pengaturanmu).">
+                <button className="btn" onClick={() => run(openDataDir, 'Gagal membuka folder.')}>
+                  Buka folder
+                </button>
+              </Row>
+            </Card>
+            {msg && <p className="note" role="alert">{msg}</p>}
+
+            <h2>Dukung pengembangan</h2>
+            <Card>
+              <Row title="Traktir kopi" hint="Aplikasi ini gratis. Kalau terbantu, kamu bisa membantu pengembang lewat Saweria untuk pengembangan lebih lanjut.">
+                <button className="btn pri" onClick={() => run(() => openExternal(SAWERIA_URL), 'Gagal membuka Saweria.')}>
+                  Saweria
+                </button>
+              </Row>
+            </Card>
+
             <h2>Aplikasi</h2>
             <Card>
               <Row title="Keluar dari Yomi Island" hint="Island ditutup. Buka lagi dari menu Start.">

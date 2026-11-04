@@ -40,6 +40,7 @@ import { inTauri } from '../lib/env.ts';
 import { formatTrack } from '../lib/media.ts';
 import { hm } from '../lib/time.ts';
 import { useTheme } from '../ui/useTheme.ts';
+import { AUTO_CLOSE_MS, isTyping } from '../island/autoClose.ts';
 import { onSettingsChanged } from '../lib/bus.ts';
 import { DEFAULT_SETTINGS, GOAL_MAX, GOAL_MIN, loadSettings, type Settings } from '../lib/settings.ts';
 import {
@@ -453,6 +454,31 @@ export function App() {
 
   useEffect(() => cancelCloseTimer, [cancelCloseTimer]);
 
+  // Tutup otomatis: kursor keluar dari panel (tanpa tombol ditekan, dan tidak sedang mengetik) = sama seperti menekan ×.
+  const hoverTimer = useRef<number | null>(null);
+  const clearHover = useCallback(() => {
+    if (hoverTimer.current !== null) {
+      window.clearTimeout(hoverTimer.current);
+      hoverTimer.current = null;
+    }
+  }, []);
+  const onPanelLeave = useCallback(
+    (buttons: number) => {
+      if (!cfgRef.current.autoClose || buttons !== 0) return;
+      clearHover();
+      hoverTimer.current = window.setTimeout(() => {
+        hoverTimer.current = null;
+        const a = document.activeElement;
+        const typing = a instanceof HTMLInputElement || a instanceof HTMLTextAreaElement
+          ? isTyping({ tag: a.tagName, type: a instanceof HTMLInputElement ? a.type : undefined, value: a.value })
+          : false;
+        if (!typing) closePanel();
+      }, AUTO_CLOSE_MS);
+    },
+    [clearHover, closePanel],
+  );
+  useEffect(() => clearHover, [clearHover]);
+
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if (e.key === 'Escape') closePanel();
@@ -597,6 +623,8 @@ export function App() {
           onMedia={onMedia}
           onRecording={(on) => setRecStart(on ? Date.now() : null)}
           onOpenSettings={onOpenSettings}
+          onPanelEnter={clearHover}
+          onPanelLeave={onPanelLeave}
         />
       ) : (
         <Pill

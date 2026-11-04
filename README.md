@@ -122,3 +122,15 @@ Belum terverifikasi (belum dikompilasi/dijalankan): nama API crate `windows` 0.6
 - Pengaturan > Umum > Tema: Gelap, Terang, atau Ikuti Windows. Berlaku di island dan jendela Pengaturan, langsung tanpa restart. Maskot neko sengaja tetap gelap (seperti stiker) di tema terang.
 - Semua warna kini lewat variabel CSS di `src/styles/island.css` (blok `:root` dan `:root[data-theme='light']`). Ubah di sana untuk menyesuaikan.
 - Uji: kedua tema di semua tab (Hari ini, Baca, Anime, Musik, Santai), jendela Pengaturan, pill saat notifikasi, peringatan baterai merah; teks kecil (abu-abu) harus tetap terbaca di tema terang. Mode Ikuti Windows bergantung pada `prefers-color-scheme` WebView2 (belum diuji): ganti tema Windows saat aplikasi jalan, tampilan harus ikut.
+
+## Pill ringkas, tutup otomatis, bantuan
+
+- Pill lebih kecil (tinggi 30 px) dan lebih dekat ke tepi atas layar; jendela island saat tertutup juga lebih pendek (48 px).
+- Tutup otomatis: kursor keluar dari panel, setelah 0,5 detik panel menutup dengan animasi yang sama seperti tombol ×. Tidak menutup bila tombol mouse sedang ditekan (menggeser slider/jendela) atau kolom teks sedang terisi. Bisa dimatikan di Pengaturan > Umum > Perilaku.
+- Pengaturan > Tentang: Laporkan masalah (membuka form GitHub dengan versi, Windows, dan 10 baris error terakhir terisi), Folder log dan pengaturan (error.log dan yomi.db), Saweria (https://saweria.co/BrianCoding).
+- `error.log` ditulis Rust ke folder konfigurasi aplikasi: error.log (maksimal 512 KB, lalu dipindah ke error.log.old). Isinya console.error, error tak tertangani, dan promise yang ditolak dari kedua jendela, satu baris per kejadian, dibatasi 30 per menit.
+- Form GitHub memakai template `.github/ISSUE_TEMPLATE/bug_report.yml`. Template harus ada di branch default (main) agar form terstruktur muncul: ikut ter-merge saat Stage-V digabung.
+- Keamanan: Rust hanya membuka dua URL di daftar putih (form issue repo ini dan Saweria); URL lain ditolak. Fungsi murni Rust ini (`src-tauri/src/util.rs`) sudah diuji dengan `rustc --test`.
+
+Uji: pill di layar 100%/125%/150% (tidak terpotong di tepi atas), kursor keluar panel menutupnya, mengetik di kolom Tambah task lalu menggeser kursor keluar tidak menutup, tombol laporan membuka browser dengan kolom terisi, tombol Buka folder membuka Explorer di folder yang berisi error.log setelah ada error pertama.
+Belum terverifikasi: `app.path().app_config_dir()` memang folder yang sama dengan yomi.db, `explorer.exe <url>` membuka browser bawaan, dan GitHub mengisi kolom form lewat query `version`, `os`, `log`.

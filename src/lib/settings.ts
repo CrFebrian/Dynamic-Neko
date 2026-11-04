@@ -5,6 +5,8 @@ import type { ThemePref } from './theme.ts';
 export interface Settings {
   style: IslandStyle;
   theme: ThemePref;
+  /** Panel menutup sendiri saat kursor keluar. */
+  autoClose: boolean;
   beep: boolean;
   meetingMode: boolean;
   watchMode: boolean;
@@ -25,6 +27,7 @@ export type SettingKey = keyof Settings;
 export const DEFAULT_SETTINGS: Readonly<Settings> = {
   style: 'dynamic',
   theme: 'dark',
+  autoClose: true,
   beep: true,
   meetingMode: true,
   watchMode: true,
