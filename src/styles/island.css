@@ -120,3 +120,16 @@ input[type='time'] { width: 92px; color-scheme: dark; }
 @keyframes zz { 0% { opacity: 0; transform: translate(0, 3px); } 40% { opacity: 1; } 100% { opacity: 0; transform: translate(3px, -5px); } }
 @keyframes bob { 50% { transform: translateY(-1.5px) rotate(-3deg); } }
 @media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }
+
+/* pill memanjang: ikon di kiri, jam dan baterai di kanan */
+.pill.idle.wide { width: 250px; justify-content: space-between; padding: 0 16px 0 10px; }
+.pill.idle.wide .mini, .notch .pill.idle.wide .mini { width: 38px; transform: none; }
+.pinfo { display: flex; align-items: center; gap: 12px; font-size: 12.5px; }
+.clk { color: var(--ink); letter-spacing: 0.02em; }
+.bat { display: inline-flex; align-items: center; gap: 5px; color: var(--muted); }
+.bat .cell { position: relative; display: block; width: 22px; height: 11px; padding: 1px; border: 1.5px solid currentColor; border-radius: 3px; }
+.bat .cell::after { content: ''; position: absolute; right: -4px; top: 2px; width: 2px; height: 4px; border-radius: 0 1px 1px 0; background: currentColor; }
+.bat .cell i { display: block; height: 100%; border-radius: 1px; background: var(--mint); }
+.bat.low { color: var(--danger); }
+.bat.low .cell i { background: var(--danger); }
+.bat svg { width: 8px; height: 11px; fill: var(--warn); }

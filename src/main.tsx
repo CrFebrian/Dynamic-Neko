@@ -1,14 +1,17 @@
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import { App } from './app/App.tsx';
+import { currentView } from './app/view.ts';
+import { SettingsApp } from './settings/SettingsApp.tsx';
 import './styles/island.css';
 import './styles/tabs.css';
+import './styles/settings.css';
 
 const el = document.getElementById('root');
 if (!el) throw new Error('Elemen #root tidak ditemukan');
 
-createRoot(el).render(
-  <StrictMode>
-    <App />
-  </StrictMode>,
-);
+const settings = currentView() === 'settings';
+document.documentElement.classList.toggle('sv', settings);
+if (settings) document.title = 'Pengaturan Yomi Island';
+
+createRoot(el).render(<StrictMode>{settings ? <SettingsApp /> : <App />}</StrictMode>);

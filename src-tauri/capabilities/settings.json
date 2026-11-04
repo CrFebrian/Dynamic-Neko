@@ -1,0 +1,13 @@
+{
+  "$schema": "../gen/schemas/desktop-schema.json",
+  "identifier": "settings",
+  "description": "Izin jendela Pengaturan: database lokal dan event antar-jendela saja.",
+  "windows": [
+    "settings"
+  ],
+  "permissions": [
+    "core:event:default",
+    "sql:default",
+    "sql:allow-execute"
+  ]
+}

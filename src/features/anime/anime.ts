@@ -87,3 +87,9 @@ export function countdownText(item: WatchItem, now: number): string {
   const d = item.airingAt - now;
   return d <= 0 ? `Eps ${item.episode} baru tayang` : `Eps ${item.episode} dalam ${left(d)}`;
 }
+
+/** Terapkan hasil segar ke daftar saat ini (daftar bisa sudah berubah selama permintaan berjalan). */
+export const mergeFreshAnime = (current: readonly WatchItem[], fresh: readonly WatchItem[]): WatchItem[] => {
+  const by = new Map(fresh.map((f) => [f.id, f]));
+  return current.map((c) => by.get(c.id) ?? c);
+};

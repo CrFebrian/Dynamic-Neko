@@ -30,3 +30,9 @@ export function left(ms: number): string {
   }
   return `${h} j${r ? ` ${r} mnt` : ''}`;
 }
+
+/** Milidetik epoch -> "HH:MM" (waktu lokal, 24 jam). */
+export function hm(ms: number): string {
+  const d = new Date(ms);
+  return `${pad(d.getHours())}:${pad(d.getMinutes())}`;
+}

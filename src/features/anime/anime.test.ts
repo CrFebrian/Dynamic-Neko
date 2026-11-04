@@ -71,3 +71,25 @@ test('fetchAnime: sukses, 404, 429, 500, judul terlalu pendek', async () => {
   assert.equal(await fetchAnime({ search: ' a ' }, async () => ((called = true), ok())), null);
   assert.equal(called, false);
 });
+
+import { mergeFreshAnime } from './anime.ts';
+import { refreshStale } from './animeApi.ts';
+test('mergeFreshAnime menghormati daftar saat ini (item yang dihapus tidak muncul lagi)', () => {
+  const cur: WatchItem[] = [{ id: 1, title: 'A', episode: 1, airingAt: 1 }];
+  const fresh: WatchItem[] = [{ id: 1, title: 'A', episode: 2, airingAt: 5 }, { id: 2, title: 'B', episode: 1, airingAt: 1 }];
+  assert.deepEqual(mergeFreshAnime(cur, fresh), [fresh[0]]);
+});
+test('refreshStale: hanya yang basi, berhenti saat error', async () => {
+  const now = 10_000;
+  const items: WatchItem[] = [
+    { id: 1, title: 'A', episode: 1, airingAt: 5 },
+    { id: 2, title: 'B', episode: 1, airingAt: now + 99_999 },
+    { id: 3, title: 'C', episode: null, airingAt: null },
+  ];
+  let calls = 0;
+  const ok = async () => (calls++, new Response(JSON.stringify(media()), { status: 200 }));
+  assert.equal((await refreshStale(items, now, ok)).length, 2);
+  assert.equal(calls, 2);
+  const bad = async () => new Response('', { status: 500 });
+  assert.equal((await refreshStale(items, now, bad)).length, 0);
+});

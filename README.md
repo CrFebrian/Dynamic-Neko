@@ -3,7 +3,7 @@
 Dynamic island untuk Windows 10 dan 11 dengan maskot neko. Fokus: pengingat task harian, sesi baca, anime, dan musik.
 Nama kerja, bisa diganti.
 
-Status: **Tahap 3 (sebagian)**. Tambahan Tahap 3: tab Anime (hitung mundur episode dari AniList), lirik berjalan (LRCLIB, mati secara default), suara latar (hujan/angin/putih, dibuat dengan Web Audio), timer reset harian game, progres buku, kutipan harian. Update manga (MangaDex) ditunda. Dari Tahap 2: Tambahan Tahap 2: bayangan dihapus, island bisa digeser kiri-kanan (posisi tersimpan sebagai pecahan lebar layar, tidak menempel tepi), tab Musik (Spotify/browser lewat SMTC), mode rapat (mikrofon aktif), mode nonton (layar penuh, island disembunyikan), penanda rekam layar manual. Dari Tahap 1: task tersimpan (SQLite), sesi baca (timer 25/50/5 menit), target halaman + streak, istirahat mata 20-20-20, ikon tray, animasi buka dan tutup. Musik, anime, dan suara latar menyusul.
+Status: **Tahap 3 selesai + revisi**. Baru: pill memanjang dengan jam dan baterai, jendela Pengaturan terpisah (tombol Pengaturan di panel atau menu tray), update manga (MangaDex), notifikasi di pill untuk episode anime, bab manga, dan reset game. Permintaan jaringan kini dikirim dari Rust lewat plugin HTTP Tauri (bukan dari WebView), jadi tidak terkena CORS dan CSP tidak membuka host luar. Sebelumnya: Tambahan Tahap 3: tab Anime (hitung mundur episode dari AniList), lirik berjalan (LRCLIB, mati secara default), suara latar (hujan/angin/putih, dibuat dengan Web Audio), timer reset harian game, progres buku, kutipan harian. Update manga (MangaDex) ditunda. Dari Tahap 2: Tambahan Tahap 2: bayangan dihapus, island bisa digeser kiri-kanan (posisi tersimpan sebagai pecahan lebar layar, tidak menempel tepi), tab Musik (Spotify/browser lewat SMTC), mode rapat (mikrofon aktif), mode nonton (layar penuh, island disembunyikan), penanda rekam layar manual. Dari Tahap 1: task tersimpan (SQLite), sesi baca (timer 25/50/5 menit), target halaman + streak, istirahat mata 20-20-20, ikon tray, animasi buka dan tutup. Musik, anime, dan suara latar menyusul.
 
 ## Yang perlu dipasang (Windows 10)
 
@@ -16,7 +16,7 @@ Status: **Tahap 3 (sebagian)**. Tambahan Tahap 3: tab Anime (hitung mundur episo
 
 ```powershell
 npm install
-npm test            # 101 test logika, tidak butuh Rust
+npm test            # 122 test logika, tidak butuh Rust
 npm run typecheck
 npm run dev         # UI di browser (http://localhost:1420), tanpa jendela Tauri
 npm run tauri dev   # jendela island sungguhan. Build Rust pertama bisa 5-10 menit
@@ -94,3 +94,18 @@ Tidak ada dependency npm atau crate baru, jadi `npm install` tidak perlu diulang
 - Timer game: tambah "Game 04:00", hitung mundur sesuai jam lokal.
 - Buku: tambah buku 200 halaman, tombol +10/-10 tidak keluar dari 0..200.
 - Belum terverifikasi: AniList/LRCLIB mengizinkan CORS dari WebView Tauri. Bila ada error "Failed to fetch" di konsol, kabari saya (solusinya lewat Rust).
+
+## Daftar uji revisi (jam/baterai, Pengaturan, manga, notifikasi)
+
+**Wajib dijalankan sekali:** `npm install` (ada dependency baru `@tauri-apps/plugin-http`; `package-lock.json` akan ikut diperbarui, commit lagi bila mau). Build Rust berikutnya mengunduh crate `tauri-plugin-http` dan memperbarui `Cargo.lock`.
+
+- Pill diam: ikon neko di kiri, jam (24 jam) dan baterai di kanan. Di PC tanpa baterai hanya jam. Cabut charger: indikator berhenti menunjukkan petir; di bawah 20% berwarna merah.
+- Klik tab Pengaturan di panel: jendela Pengaturan terbuka (bukan tab di dalam panel), panel island menutup. Klik lagi: jendela yang sama difokuskan. Tray > Pengaturan juga bisa.
+- Matikan Tampilkan jam/baterai di Pengaturan: pill langsung berubah tanpa restart. Ganti Gaya (Dynamic/Notch): island langsung berubah.
+- Ubah Jeda istirahat mata atau Target baca di Pengaturan: berlaku di island; ubah di island lalu fokuskan jendela Pengaturan: nilainya ikut.
+- Anime: tambah anime yang masih tayang, ubah jam laptop ke sebelum jadwal tayang (atau tunggu): pill menampilkan "judul eps N tayang".
+- Manga: cari "One Piece", tampil "Bab N · x j lalu". Ganti bahasa di Pengaturan > Anime, manga, lirik: acuan bab diulang, tidak ada notifikasi palsu.
+- Game: timer "Game 04:00"; saat jam itu lewat, pill menampilkan "Reset harian Game".
+- Rapat atau layar penuh aktif: notifikasi ditahan, ringkasannya muncul sesudahnya.
+
+Belum terverifikasi (belum dikompilasi/dijalankan): nama API crate `windows` 0.61 untuk `GetSystemPowerStatus`, bentuk izin `http:default` dengan `allow` URL, pembuatan jendela kedua dari Rust, parameter query MangaDex (`order[publishAt]`, `contentRating[]`, `translatedLanguage[]`), dan apakah plugin HTTP menerima header User-Agent kustom.

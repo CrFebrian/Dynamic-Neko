@@ -27,44 +27,55 @@ export class MemoryStore implements Store {
   protected days = new Map<string, DayRecord>();
 
   async loadTasks(): Promise<Task[]> {
+    this.sync();
     return this.tasks.map((t) => ({ ...t }));
   }
   async addTask(title: string, due: number | null, tag: TaskTag): Promise<Task> {
+    this.sync();
     const t: Task = { id: this.nextId++, title, due, done: false, tag };
     this.tasks.push(t);
     this.persist();
     return { ...t };
   }
   async setDone(id: number, done: boolean): Promise<void> {
+    this.sync();
     const t = this.tasks.find((x) => x.id === id);
     if (t) t.done = done;
     this.persist();
   }
   async removeTask(id: number): Promise<void> {
+    this.sync();
     this.tasks = this.tasks.filter((x) => x.id !== id);
     this.persist();
   }
   async getSetting(key: string): Promise<string | null> {
+    this.sync();
     return this.settings.get(key) ?? null;
   }
   async setSetting(key: string, value: string): Promise<void> {
+    this.sync();
     this.settings.set(key, value);
     this.persist();
   }
   async loadDay(day: string): Promise<DayRecord | null> {
+    this.sync();
     const r = this.days.get(day);
     return r ? { ...r } : null;
   }
   async saveDay(rec: DayRecord): Promise<void> {
+    this.sync();
     this.days.set(rec.day, { ...rec });
     this.persist();
   }
   async loadRecentDays(limit: number): Promise<DayRecord[]> {
+    this.sync();
     return [...this.days.values()]
       .sort((a, b) => b.day.localeCompare(a.day))
       .slice(0, Math.max(0, limit))
       .map((r) => ({ ...r }));
   }
+  /** Dipanggil sebelum setiap operasi. LocalStore memakainya untuk membaca ulang data dari jendela/tab lain. */
+  protected sync(): void {}
   protected persist(): void {}
 }
 
@@ -75,6 +86,19 @@ const isRec = (v: unknown): v is Record<string, unknown> => typeof v === 'object
 export class LocalStore extends MemoryStore {
   constructor() {
     super();
+    this.load();
+  }
+
+  protected override sync(): void {
+    this.load();
+  }
+
+  /** Baca ulang semua data dari localStorage (sumber kebenaran, bisa diubah tab lain). */
+  private load(): void {
+    this.tasks = [];
+    this.nextId = 1;
+    this.settings = new Map();
+    this.days = new Map();
     try {
       const raw = localStorage.getItem(LS_KEY);
       if (!raw) return;

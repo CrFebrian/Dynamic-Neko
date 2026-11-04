@@ -8,14 +8,13 @@ import { MODES, remaining, type TimerMode, type TimerState } from '../features/r
 import type { DayRecord } from '../features/reading/streak.ts';
 import { eyeActive, eyeSecondsLeft, type EyeState } from '../features/eye/eyeRest.ts';
 import type { PillView } from './pillState.ts';
-import type { IslandStyle } from './types.ts';
+import type { SimControls } from './types.ts';
 import { TodayTab } from './tabs/TodayTab.tsx';
 import { ReadTab } from './tabs/ReadTab.tsx';
 import { MusicTab } from './tabs/MusicTab.tsx';
 import { AnimeTab } from './tabs/AnimeTab.tsx';
 import { BooksSection } from './tabs/BooksSection.tsx';
 import { ChillTab } from './tabs/ChillTab.tsx';
-import { SettingsTab, type SimControls } from './tabs/SettingsTab.tsx';
 
 type TabKey = 'today' | 'read' | 'anime' | 'music' | 'chill' | 'set';
 
@@ -25,7 +24,7 @@ const TABS: ReadonlyArray<{ key: TabKey; label: string }> = [
   { key: 'anime', label: 'Anime' },
   { key: 'music', label: 'Musik' },
   { key: 'chill', label: 'Santai' },
-  { key: 'set', label: 'Atur' },
+  { key: 'set', label: 'Pengaturan' },
 ];
 
 export interface PanelProps {
@@ -33,10 +32,6 @@ export interface PanelProps {
   view: PillView;
   closing: boolean;
   drag: WindowDrag;
-  style: IslandStyle;
-  beep: boolean;
-  meetingMode: boolean;
-  watchMode: boolean;
   recording: boolean;
   tasks: readonly Task[];
   timer: TimerState;
@@ -58,12 +53,8 @@ export interface PanelProps {
   onEyeInterval: (min: number) => void;
   onEyeNow: () => void;
   onMedia: (a: MediaAction) => void;
-  onStyle: (s: IslandStyle) => void;
-  onBeep: (on: boolean) => void;
-  onMeetingMode: (on: boolean) => void;
-  onWatchMode: (on: boolean) => void;
   onRecording: (on: boolean) => void;
-  onQuit: () => void;
+  onOpenSettings: () => void;
 }
 
 function bubble(p: PanelProps): string {
@@ -117,30 +108,18 @@ export function Panel(p: PanelProps) {
           {tab === 'music' && (
             <MusicTab now={p.now} media={p.media} mediaAt={p.mediaAt} onControl={p.onMedia} simulated={p.sim !== null} />
           )}
-          {tab === 'chill' && <ChillTab now={p.now} eye={p.eye} onInterval={p.onEyeInterval} onNow={p.onEyeNow} />}
-          {tab === 'set' && (
-            <SettingsTab
-              style={p.style}
-              beep={p.beep}
-              meetingMode={p.meetingMode}
-              watchMode={p.watchMode}
-              recording={p.recording}
-              sim={p.sim}
-              onStyle={p.onStyle}
-              onBeep={p.onBeep}
-              onMeetingMode={p.onMeetingMode}
-              onWatchMode={p.onWatchMode}
-              onRecording={p.onRecording}
-              onQuit={p.onQuit}
-            />
-          )}
+          {tab === 'chill' && <ChillTab now={p.now} eye={p.eye} onInterval={p.onEyeInterval} onNow={p.onEyeNow} recording={p.recording} onRecording={p.onRecording} sim={p.sim} />}
           {tab === 'anime' && <AnimeTab now={p.now} />}
         </div>
       </div>
 
       <nav className="tabs" aria-label="Menu">
         {TABS.map((t) => (
-          <button key={t.key} aria-current={tab === t.key} onClick={() => setTab(t.key)}>
+          <button
+            key={t.key}
+            aria-current={t.key !== 'set' && tab === t.key}
+            onClick={() => (t.key === 'set' ? p.onOpenSettings() : setTab(t.key))}
+          >
             {t.label}
           </button>
         ))}

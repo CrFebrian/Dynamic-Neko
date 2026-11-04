@@ -102,6 +102,16 @@ export async function beginDrag(): Promise<DragSession | null> {
 
 export async function quitApp(): Promise<void> {
   if (!inTauri()) return;
-  const { getCurrentWindow } = await import('@tauri-apps/api/window');
-  await getCurrentWindow().close();
+  const { invoke } = await import('@tauri-apps/api/core');
+  await invoke('quit_app');
+}
+
+/** Buka jendela Pengaturan (di browser: jendela popup dengan ?view=settings). */
+export async function openSettings(): Promise<void> {
+  if (!inTauri()) {
+    window.open(`${window.location.pathname}?view=settings`, 'yomi-settings', 'popup,width=900,height=640');
+    return;
+  }
+  const { invoke } = await import('@tauri-apps/api/core');
+  await invoke('open_settings');
 }

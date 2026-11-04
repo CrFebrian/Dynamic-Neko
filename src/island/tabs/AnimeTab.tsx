@@ -11,6 +11,7 @@ import {
   type WatchItem,
 } from '../../features/anime/anime.ts';
 import { fetchAnime } from '../../features/anime/animeApi.ts';
+import { MangaSection } from './MangaSection.tsx';
 import { useStored } from './useStored.ts';
 
 interface Props {
@@ -112,6 +113,7 @@ export function AnimeTab({ now }: Props) {
       <p className="note" aria-live="polite">
         {msg ?? 'Data dari AniList. Hanya judul yang kamu ketik dikirim ke sana.'}
       </p>
+      <MangaSection now={now} />
     </>
   );
 }

@@ -1,12 +1,13 @@
 //! Implementasi Windows. Semua fungsi di sini bersifat blocking, jadi dipanggil
 //! lewat `spawn_blocking` dari command Tauri.
 
-use super::{MediaAction, MediaInfo, Snapshot};
+use super::{Battery, MediaAction, MediaInfo, Snapshot};
 
 use windows::Media::Control::{
     GlobalSystemMediaTransportControlsSessionManager as SessionManager,
     GlobalSystemMediaTransportControlsSessionPlaybackStatus as PlaybackStatus,
 };
+use windows::Win32::System::Power::{GetSystemPowerStatus, SYSTEM_POWER_STATUS};
 use windows::Win32::UI::Shell::{
     SHQueryUserNotificationState, QUNS_BUSY, QUNS_PRESENTATION_MODE, QUNS_RUNNING_D3D_FULL_SCREEN,
 };
@@ -17,7 +18,22 @@ pub fn snapshot() -> Snapshot {
         fullscreen: fullscreen(),
         mic_active: mic_active(),
         media: media().ok().flatten(),
+        battery: battery(),
     }
+}
+
+/// Baterai perangkat. None bila tidak ada baterai (flag 128) atau persentase tidak diketahui (255).
+fn battery() -> Option<Battery> {
+    let mut s = SYSTEM_POWER_STATUS::default();
+    unsafe { GetSystemPowerStatus(&mut s) }.ok()?;
+    if s.BatteryFlag & 128 != 0 || s.BatteryLifePercent > 100 {
+        return None;
+    }
+    Some(Battery {
+        percent: s.BatteryLifePercent,
+        // ACLineStatus 1 = tersambung ke listrik; BatteryFlag 8 = sedang mengisi.
+        charging: s.ACLineStatus == 1 || s.BatteryFlag & 8 != 0,
+    })
 }
 
 /// Ada aplikasi layar penuh (video, game) atau mode presentasi.
