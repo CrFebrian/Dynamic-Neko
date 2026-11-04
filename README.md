@@ -134,3 +134,12 @@ Belum terverifikasi (belum dikompilasi/dijalankan): nama API crate `windows` 0.6
 
 Uji: pill di layar 100%/125%/150% (tidak terpotong di tepi atas), kursor keluar panel menutupnya, mengetik di kolom Tambah task lalu menggeser kursor keluar tidak menutup, tombol laporan membuka browser dengan kolom terisi, tombol Buka folder membuka Explorer di folder yang berisi error.log setelah ada error pertama.
 Belum terverifikasi: `app.path().app_config_dir()` memang folder yang sama dengan yomi.db, `explorer.exe <url>` membuka browser bawaan, dan GitHub mengisi kolom form lewat query `version`, `os`, `log`.
+
+## Jendela Pengaturan (tampilan baru)
+
+- Sidebar: logo neko + versi, kotak cari (Ctrl+F, Esc mengosongkan), grup **Dasar** (Umum, Tentang), **Island** (Tampilan, Isi island), **Fitur** (Musik & Audio, Hari ini, Anime & Manga, Mode fokus), masing-masing dengan ikon.
+- Pencarian: mengetik menampilkan daftar hasil dari semua kategori (judul, keterangan, sinonim seperti "dark", "battery", "saweria"); klik hasil membuka kategorinya.
+- Tentang: satu alur seperti referensi: logo, nama, versi, deskripsi; kartu Lisensi + Traktir kopi; judul "Ada masalah?" dengan kartu Laporkan dan Folder log & pengaturan. Tombol Keluar pindah ke Umum.
+- Judul dan keterangan setiap pengaturan ada di satu tempat (`src/settings/catalog.ts`); test memastikan setiap kunci pengaturan punya entri, jadi menambah pengaturan baru tanpa entri akan gagal di `npm test`.
+- Belum ada "Jalankan saat Windows mulai" (butuh plugin autostart); direncanakan di Tahap 4 bersama installer.
+- Uji: klik tiap kategori, cari "gelap" lalu klik hasilnya, ubah tema di Tampilan dan lihat island ikut berubah, ukuran jendela kecil (sidebar jadi baris di atas pada lebar < 700 px).

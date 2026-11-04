@@ -1,7 +1,7 @@
 import type { ReactNode } from 'react';
 
 /** Ikon garis sederhana (24x24), digambar sendiri. */
-const Svg = ({ children }: { children: ReactNode }) => (
+export const Svg = ({ children }: { children: ReactNode }) => (
   <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
     {children}
   </svg>
