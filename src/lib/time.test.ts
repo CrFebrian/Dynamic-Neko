@@ -26,3 +26,17 @@ test('mmss: normal, negatif, desimal', () => {
   assert.equal(mmss(-5), '00:00');
   assert.equal(mmss(59.9), '00:59');
 });
+
+import { hm } from './time.ts';
+test('hm: format HH:MM lokal', () => {
+  assert.equal(hm(new Date(2026, 10, 4, 9, 5).getTime()), '09:05');
+  assert.equal(hm(new Date(2026, 10, 4, 23, 59).getTime()), '23:59');
+});
+
+import { dateId } from './time.ts';
+test('dateId: tanggal lengkap bahasa Indonesia', () => {
+  assert.equal(dateId(new Date(2026, 10, 4, 10, 30).getTime()), 'Rabu, 4 November 2026');
+  assert.equal(dateId(new Date(2026, 0, 1).getTime()), 'Kamis, 1 Januari 2026');
+  assert.equal(dateId(new Date(2028, 1, 29, 23, 59).getTime()), 'Selasa, 29 Februari 2028');
+  assert.equal(dateId(new Date(2026, 11, 27).getTime()), 'Minggu, 27 Desember 2026');
+});

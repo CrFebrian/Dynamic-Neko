@@ -1,4 +1,5 @@
 import { clampStr, fetchJson, isObj, type FetchLike } from '../../lib/json.ts';
+import { appFetch } from '../../lib/http.ts';
 import { parseLrc, type LyricLine } from './lrc.ts';
 
 export const LRCLIB_URL = 'https://lrclib.net/api/get';
@@ -33,7 +34,7 @@ export async function fetchLyrics(
   title: string,
   artist: string,
   durationSec: number,
-  fetchImpl: FetchLike = (u, i) => fetch(u, i),
+  fetchImpl: FetchLike = appFetch,
 ): Promise<Lyrics | null> {
   const url = buildUrl(title, artist, durationSec);
   if (!url) return null;

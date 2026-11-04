@@ -63,3 +63,12 @@ test('formatTrack', () => {
   assert.equal(formatTrack({ title: 'A', artist: '', playing: true, positionSec: 0, durationSec: 0 }), 'A');
   assert.equal(formatTrack({ title: '', artist: 'B', playing: true, positionSec: 0, durationSec: 0 }), 'B');
 });
+
+test('parseSnapshot: baterai valid, tidak valid, dan tidak ada', () => {
+  assert.deepEqual(parseSnapshot({ battery: { percent: 82, charging: true } }).battery, { percent: 82, charging: true });
+  assert.deepEqual(parseSnapshot({ battery: { percent: 0, charging: 'ya' } }).battery, { percent: 0, charging: false });
+  for (const bad of [{ percent: 101 }, { percent: -1 }, { percent: 50.5 }, { percent: '50' }, { percent: 255 }, null, 7]) {
+    assert.equal(parseSnapshot({ battery: bad }).battery, null);
+  }
+  assert.equal(parseSnapshot({}).battery, null);
+});

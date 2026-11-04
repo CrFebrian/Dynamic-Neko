@@ -1,5 +1,6 @@
 import { fetchJson, type FetchLike } from '../../lib/json.ts';
-import { parseMedia, type WatchItem, MAX_ANIME_TITLE } from './anime.ts';
+import { appFetch } from '../../lib/http.ts';
+import { isStale, parseMedia, type WatchItem, MAX_ANIME_TITLE } from './anime.ts';
 
 export const ANILIST_URL = 'https://graphql.anilist.co';
 
@@ -14,7 +15,7 @@ export function buildBody(q: AnimeQuery): string {
 }
 
 /** Ambil satu anime. null bila tidak ditemukan. Melempar Error untuk masalah jaringan/server. */
-export async function fetchAnime(q: AnimeQuery, fetchImpl: FetchLike = (u, i) => fetch(u, i)): Promise<WatchItem | null> {
+export async function fetchAnime(q: AnimeQuery, fetchImpl: FetchLike = appFetch): Promise<WatchItem | null> {
   if ('search' in q && q.search.trim().length < 2) return null;
   const json = await fetchJson(fetchImpl, ANILIST_URL, {
     method: 'POST',
@@ -22,4 +23,23 @@ export async function fetchAnime(q: AnimeQuery, fetchImpl: FetchLike = (u, i) =>
     body: buildBody(q),
   });
   return parseMedia(json);
+}
+
+/**
+ * Ambil ulang item yang jadwalnya sudah lewat, satu per satu (batas AniList 90/menit).
+ * Berhenti di error pertama dan mengembalikan yang sudah berhasil.
+ */
+export async function refreshStale(items: readonly WatchItem[], now: number, fetchImpl: FetchLike = appFetch): Promise<WatchItem[]> {
+  const fresh: WatchItem[] = [];
+  for (const it of items) {
+    if (!isStale(it, now)) continue;
+    try {
+      const f = await fetchAnime({ id: it.id }, fetchImpl);
+      if (f) fresh.push(f);
+    } catch (e) {
+      console.error('Gagal memperbarui anime:', e);
+      break;
+    }
+  }
+  return fresh;
 }

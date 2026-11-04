@@ -1,12 +1,17 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { Pill } from '../island/Pill.tsx';
 import { Panel } from '../island/Panel.tsx';
-import type { IslandStyle } from '../island/types.ts';
+import type { SimControls } from '../island/types.ts';
 import { pillState, type PillInput } from '../island/pillState.ts';
 import { isSuppressed, isWatching, releaseMessage } from '../island/focusMode.ts';
-import type { SimControls } from '../island/tabs/SettingsTab.tsx';
 import type { Mascot } from '../mascot/types.ts';
 import type { Task } from '../features/tasks/tasks.ts';
+import { mergeFreshAnime, parseWatchlist, serializeWatchlist, type WatchItem } from '../features/anime/anime.ts';
+import { refreshStale } from '../features/anime/animeApi.ts';
+import { mergeFresh, parseMangaList, serializeMangaList, type MangaItem } from '../features/manga/manga.ts';
+import { refreshManga } from '../features/manga/mangaApi.ts';
+import { parseTimers, type GachaTimer } from '../features/gacha/gacha.ts';
+import { animeKey, animeText, dueAnime, dueGacha, gachaText, joinTexts, mangaText } from '../features/notify/due.ts';
 import {
   createTimer,
   finishTimer,
@@ -33,22 +38,28 @@ import { getStore } from '../lib/store.ts';
 import { beep } from '../lib/beep.ts';
 import { inTauri } from '../lib/env.ts';
 import { formatTrack } from '../lib/media.ts';
+import { hm } from '../lib/time.ts';
+import { useTheme } from '../ui/useTheme.ts';
+import { onSettingsChanged } from '../lib/bus.ts';
+import { DEFAULT_SETTINGS, GOAL_MAX, GOAL_MIN, loadSettings, type Settings } from '../lib/settings.ts';
 import {
   EMPTY_SNAPSHOT,
   fetchSnapshot,
+  type BatteryInfo,
   mediaControl,
   type MediaAction,
   type MediaInfo,
   type SystemSnapshot,
 } from '../lib/system.ts';
 import { useWindowDrag } from './useWindowDrag.ts';
-import { layoutWindow, quitApp, setWindowVisible } from './window.ts';
+import { layoutWindow, openSettings, setWindowVisible } from './window.ts';
 
 /** Harus sama dengan durasi animasi .panel.closing di tabs.css. */
 const CLOSE_MS = 220;
 const ALERT_MS = 7000;
-const DEFAULT_GOAL = 20;
-const DEFAULT_EYE_MIN = 20;
+const DEFAULT_GOAL = DEFAULT_SETTINGS.goal;
+const REMOTE_REFRESH_MS = 30 * 60_000;
+const DEMO_BATTERY: BatteryInfo = { percent: 76, charging: false };
 
 /** Data contoh untuk simulasi musik di browser. */
 const DEMO_MEDIA: MediaInfo = {
@@ -60,7 +71,7 @@ const DEMO_MEDIA: MediaInfo = {
 };
 
 const logErr = (what: string) => (err: unknown) => console.error(what, err);
-const clampGoal = (n: number): number => (Number.isFinite(n) ? Math.min(500, Math.max(5, Math.round(n))) : DEFAULT_GOAL);
+const clampGoal = (n: number): number => Math.min(GOAL_MAX, Math.max(GOAL_MIN, Math.round(n)));
 const freshDay = (key: string, goal: number): DayRecord => ({ day: key, pages: 0, goal, sessions: 0 });
 
 type Alert = NonNullable<PillInput['alert']>;
@@ -72,16 +83,18 @@ export function App() {
   const [now, setNow] = useState(() => Date.now());
   const [expanded, setExpanded] = useState(false);
   const [closing, setClosing] = useState(false);
-  const [style, setStyleState] = useState<IslandStyle>('dynamic');
+  const [cfg, setCfg] = useState<Settings>(DEFAULT_SETTINGS);
+  const style = cfg.style;
+  const beepOn = cfg.beep;
+  const meetingMode = cfg.meetingMode;
+  const watchMode = cfg.watchMode;
+  useTheme(cfg.theme);
   const [tasks, setTasks] = useState<Task[]>([]);
   const [timer, setTimerState] = useState<TimerState>(() => createTimer('baca'));
-  const [eye, setEyeState] = useState<EyeState>(() => createEye(DEFAULT_EYE_MIN, Date.now()));
+  const [eye, setEyeState] = useState<EyeState>(() => createEye(DEFAULT_SETTINGS.eyeInterval, Date.now()));
   const [alert, setAlert] = useState<Alert | null>(null);
   const [day, setDayState] = useState<DayRecord>(() => freshDay(dayKey(Date.now()), DEFAULT_GOAL));
   const [history, setHistory] = useState<DayRecord[]>([]);
-  const [beepOn, setBeepOn] = useState(true);
-  const [meetingMode, setMeetingMode] = useState(true);
-  const [watchMode, setWatchMode] = useState(true);
   const [recStart, setRecStart] = useState<number | null>(null);
   const [held, setHeld] = useState(0);
   const [snap, setSnap] = useState<SystemSnapshot>(EMPTY_SNAPSHOT);
@@ -101,6 +114,10 @@ export function App() {
   const hiddenRef = useRef(false);
   const suppressedRef = useRef(false);
   const heldRef = useRef(0);
+  const cfgRef = useRef(cfg);
+  const listsRef = useRef<{ anime: WatchItem[]; manga: MangaItem[]; gacha: GachaTimer[] }>({ anime: [], manga: [], gacha: [] });
+  const seenRef = useRef<Set<string>>(new Set());
+  const lastCheckRef = useRef(Date.now());
   const closeTimer = useRef<number | null>(null);
 
   const setTimer = useCallback((next: TimerState) => {
@@ -116,6 +133,8 @@ export function App() {
     setDayState(next);
   }, []);
   expandedRef.current = expanded;
+  cfgRef.current = cfg;
+  beepRef.current = cfg.beep;
 
   // Keadaan sistem: dari Windows (Tauri), atau simulasi di browser.
   const system: SystemSnapshot = native
@@ -124,6 +143,7 @@ export function App() {
         fullscreen: simState.fullscreen,
         micActive: simState.mic,
         media: simState.music ? DEMO_MEDIA : null,
+        battery: DEMO_BATTERY,
       };
   const focus = { micActive: system.micActive, meetingMode, fullscreen: system.fullscreen, watchMode };
   const suppressed = isSuppressed(focus);
@@ -152,39 +172,57 @@ export function App() {
     [store, setDay],
   );
 
+  /** Terapkan pengaturan dari penyimpanan. Dipakai saat mulai dan saat jendela Pengaturan mengubah sesuatu. */
+  const applySettings = useCallback(
+    (s: Settings) => {
+      setCfg(s);
+      beepRef.current = s.beep;
+      if (eyeRef.current.intervalMin !== s.eyeInterval) setEye(setEyeInterval(eyeRef.current, s.eyeInterval, Date.now()));
+      if (goalRef.current !== s.goal) {
+        goalRef.current = s.goal;
+        updateDay({ goal: s.goal });
+      }
+    },
+    [setEye, updateDay],
+  );
+
+  /** Muat ulang daftar anime, manga, dan timer game untuk notifikasi. */
+  const reloadLists = useCallback(async () => {
+    try {
+      const [a, m, g] = await Promise.all([
+        store.getSetting('animeWatch'),
+        store.getSetting('mangaWatch'),
+        store.getSetting('gachaTimers'),
+      ]);
+      listsRef.current = { anime: parseWatchlist(a), manga: parseMangaList(m), gacha: parseTimers(g) };
+    } catch (err) {
+      console.error('Gagal memuat daftar pantauan:', err);
+    }
+  }, [store]);
+
   // Muat data tersimpan sekali saat mulai, lalu tampilkan jendela di posisi tersimpan.
   useEffect(() => {
     let cancelled = false;
     (async () => {
       try {
-        const [saved, st, bp, ei, goal, mm, wm, pf, recent] = await Promise.all([
+        const [saved, s, pf, recent] = await Promise.all([
           store.loadTasks(),
-          store.getSetting('style'),
-          store.getSetting('beep'),
-          store.getSetting('eyeInterval'),
-          store.getSetting('goal'),
-          store.getSetting('meetingMode'),
-          store.getSetting('watchMode'),
+          loadSettings(store),
           store.getSetting('posFraction'),
           store.loadRecentDays(400),
         ]);
         if (cancelled) return;
         setTasks(saved);
-        if (st === 'notch' || st === 'dynamic') setStyleState(st);
-        if (bp !== null) {
-          beepRef.current = bp !== '0';
-          setBeepOn(bp !== '0');
-        }
-        if (mm !== null) setMeetingMode(mm !== '0');
-        if (wm !== null) setWatchMode(wm !== '0');
+        setCfg(s);
+        beepRef.current = s.beep;
         const frac = pf === null ? 0.5 : Number(pf);
         fracRef.current = Number.isFinite(frac) ? Math.min(1, Math.max(0, frac)) : 0.5;
-        const mins = ei === null ? DEFAULT_EYE_MIN : Number(ei);
-        if (Number.isInteger(mins) && mins >= 0 && mins <= 240) setEye(createEye(mins, Date.now()));
-        goalRef.current = goal === null ? DEFAULT_GOAL : clampGoal(Number(goal));
+        setEye(createEye(s.eyeInterval, Date.now()));
+        goalRef.current = s.goal;
         setHistory(recent);
         const today = dayKey(Date.now());
         setDay(recent.find((r) => r.day === today) ?? freshDay(today, goalRef.current));
+        await reloadLists();
       } catch (err) {
         console.error('Gagal memuat data tersimpan:', err);
       }
@@ -194,7 +232,33 @@ export function App() {
     return () => {
       cancelled = true;
     };
-  }, [store, setEye, setDay]);
+  }, [store, setEye, setDay, reloadLists]);
+
+  // Jendela Pengaturan mengubah sesuatu: muat ulang. Ganti bahasa manga = acuan bab diulang (tanpa notifikasi palsu).
+  useEffect(() => {
+    return onSettingsChanged(() => {
+      void (async () => {
+        try {
+          const prevLang = cfgRef.current.mangaLang;
+          const s = await loadSettings(store);
+          if (s.mangaLang !== prevLang) {
+            const list = parseMangaList(await store.getSetting('mangaWatch')).map((m) => ({ ...m, chapter: null, publishAt: null }));
+            await store.setSetting('mangaWatch', serializeMangaList(list));
+          }
+          applySettings(s);
+          await reloadLists();
+        } catch (err) {
+          console.error('Gagal menerapkan pengaturan:', err);
+        }
+      })();
+    });
+  }, [store, applySettings, reloadLists]);
+
+  // Daftar pantauan bisa diubah dari tab di panel: segarkan tiap menit.
+  useEffect(() => {
+    const id = window.setInterval(() => void reloadLists(), 60_000);
+    return () => window.clearInterval(id);
+  }, [reloadLists]);
 
   // Baca keadaan sistem tiap detik (hanya di dalam Tauri).
   useEffect(() => {
@@ -298,9 +362,66 @@ export function App() {
         if (e.activeUntil === null && ne.activeUntil !== null) ring();
         if (e.activeUntil !== null && ne.activeUntil === null) showAlert('excited', 'Mata sudah segar. Lanjut!', 4000);
       }
+
+      // Notifikasi jadwal: episode anime tayang dan reset harian game.
+      const c = cfgRef.current;
+      const l = listsRef.current;
+      const prev = lastCheckRef.current;
+      lastCheckRef.current = t;
+      const texts: string[] = [];
+      if (c.notifyAnime) {
+        for (const a of dueAnime(l.anime, t, seenRef.current)) {
+          seenRef.current.add(animeKey(a));
+          texts.push(animeText(a));
+        }
+      }
+      if (c.notifyGacha) for (const g of dueGacha(l.gacha, prev, t)) texts.push(gachaText(g));
+      if (texts.length > 0) {
+        showAlert('excited', joinTexts(texts));
+        ring();
+      }
     }, 1000);
     return () => window.clearInterval(id);
   }, [handleTimerDone, setEye, showAlert, ring]);
+
+  // Perbarui jadwal anime yang lewat dan bab manga terbaru, lalu umumkan yang baru. Satu permintaan pada satu waktu.
+  const refreshRemote = useCallback(async () => {
+    const c = cfgRef.current;
+    try {
+      const l = listsRef.current;
+      const freshA = await refreshStale(l.anime, Date.now());
+      if (freshA.length > 0) {
+        const cur = parseWatchlist(await store.getSetting('animeWatch'));
+        const merged = mergeFreshAnime(cur, freshA);
+        await store.setSetting('animeWatch', serializeWatchlist(merged));
+        listsRef.current = { ...listsRef.current, anime: merged };
+      }
+      if (l.manga.length > 0) {
+        const { fresh, updated } = await refreshManga(l.manga, c.mangaLang);
+        if (fresh.length > 0) {
+          const cur = parseMangaList(await store.getSetting('mangaWatch'));
+          const merged = mergeFresh(cur, fresh);
+          await store.setSetting('mangaWatch', serializeMangaList(merged));
+          listsRef.current = { ...listsRef.current, manga: merged };
+        }
+        if (c.notifyManga && updated.length > 0) {
+          showAlert('excited', joinTexts(updated.map((m) => mangaText(m.title, m.chapter))));
+          ring();
+        }
+      }
+    } catch (err) {
+      console.error('Gagal memperbarui anime/manga:', err);
+    }
+  }, [store, showAlert, ring]);
+
+  useEffect(() => {
+    const first = window.setTimeout(() => void refreshRemote(), 15_000);
+    const id = window.setInterval(() => void refreshRemote(), REMOTE_REFRESH_MS);
+    return () => {
+      window.clearTimeout(first);
+      window.clearInterval(id);
+    };
+  }, [refreshRemote]);
 
   // Buka panel: ubah ukuran jendela dulu, baru tampilkan panel (agar tidak terpotong).
   const openPanel = useCallback(async () => {
@@ -390,11 +511,13 @@ export function App() {
     const goal = clampGoal(dayRef.current.goal + delta);
     goalRef.current = goal;
     updateDay({ goal });
+    setCfg((c) => ({ ...c, goal }));
     store.setSetting('goal', String(goal)).catch(logErr('Gagal menyimpan target:'));
   };
 
   const eyeInterval = (min: number) => {
     setEye(setEyeInterval(eyeRef.current, min, Date.now()));
+    setCfg((c) => ({ ...c, eyeInterval: min }));
     store.setSetting('eyeInterval', String(min)).catch(logErr('Gagal menyimpan pengaturan mata:'));
   };
   const eyeNow = () => {
@@ -402,26 +525,13 @@ export function App() {
     ring();
   };
 
-  const onMedia = (a: MediaAction) => {
-    mediaControl(a).catch(logErr('Gagal mengirim perintah ke pemutar:'));
+  const onOpenSettings = () => {
+    openSettings().catch(logErr('Gagal membuka pengaturan:'));
+    closePanel();
   };
 
-  const changeStyle = (s: IslandStyle) => {
-    setStyleState(s);
-    store.setSetting('style', s).catch(logErr('Gagal menyimpan gaya:'));
-  };
-  const changeBeep = (on: boolean) => {
-    beepRef.current = on;
-    setBeepOn(on);
-    store.setSetting('beep', on ? '1' : '0').catch(logErr('Gagal menyimpan pengaturan suara:'));
-  };
-  const changeMeeting = (on: boolean) => {
-    setMeetingMode(on);
-    store.setSetting('meetingMode', on ? '1' : '0').catch(logErr('Gagal menyimpan mode rapat:'));
-  };
-  const changeWatch = (on: boolean) => {
-    setWatchMode(on);
-    store.setSetting('watchMode', on ? '1' : '0').catch(logErr('Gagal menyimpan mode nonton:'));
+  const onMedia = (a: MediaAction) => {
+    mediaControl(a).catch(logErr('Gagal mengirim perintah ke pemutar:'));
   };
 
   const sim: SimControls | null = native
@@ -464,10 +574,6 @@ export function App() {
           view={view}
           closing={closing}
           drag={drag}
-          style={style}
-          beep={beepOn}
-          meetingMode={meetingMode}
-          watchMode={watchMode}
           recording={recStart !== null}
           tasks={tasks}
           timer={timer}
@@ -489,15 +595,17 @@ export function App() {
           onEyeInterval={eyeInterval}
           onEyeNow={eyeNow}
           onMedia={onMedia}
-          onStyle={changeStyle}
-          onBeep={changeBeep}
-          onMeetingMode={changeMeeting}
-          onWatchMode={changeWatch}
           onRecording={(on) => setRecStart(on ? Date.now() : null)}
-          onQuit={() => void quitApp()}
+          onOpenSettings={onOpenSettings}
         />
       ) : (
-        <Pill view={view} onOpen={() => void openPanel()} drag={drag} />
+        <Pill
+          view={view}
+          onOpen={() => void openPanel()}
+          drag={drag}
+          clock={cfg.showClock ? hm(now) : null}
+          battery={cfg.showBattery ? system.battery : null}
+        />
       )}
     </div>
   );

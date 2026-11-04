@@ -1,5 +1,5 @@
 import { useState, type FormEvent } from 'react';
-import { left } from '../../lib/time.ts';
+import { dateId, left } from '../../lib/time.ts';
 import {
   cleanTitle,
   MAX_TITLE,
@@ -44,9 +44,12 @@ export function TodayTab({ now, tasks, onToggle, onDelete, onAdd }: Props) {
     <>
       <div className="hero">
         <b>{heroTitle}</b>
-        {next && next.due !== null && (
-          <span className="mono">{next.due < now ? left(next.due - now) : `dalam ${left(next.due - now)}`}</span>
-        )}
+        <div className="hr">
+          <span className="date">{dateId(now)}</span>
+          {next && next.due !== null && (
+            <span className="mono">{next.due < now ? left(next.due - now) : `dalam ${left(next.due - now)}`}</span>
+          )}
+        </div>
       </div>
       <ul className="tl">
         {sortTasks(tasks).map((t) => (

@@ -25,12 +25,22 @@ pub struct MediaInfo {
     pub duration_sec: f64,
 }
 
+#[derive(Serialize, Clone, Debug, PartialEq)]
+#[serde(rename_all = "camelCase")]
+pub struct Battery {
+    /// 0..=100.
+    pub percent: u8,
+    pub charging: bool,
+}
+
 #[derive(Serialize, Clone, Debug, Default, PartialEq)]
 #[serde(rename_all = "camelCase")]
 pub struct Snapshot {
     pub fullscreen: bool,
     pub mic_active: bool,
     pub media: Option<MediaInfo>,
+    /// None bila perangkat tanpa baterai (PC desktop) atau tidak terbaca.
+    pub battery: Option<Battery>,
 }
 
 /// Aksi pemutar yang diizinkan. Nilai lain ditolak sebelum menyentuh API Windows.
@@ -84,6 +94,7 @@ mod tests {
         let s = Snapshot {
             fullscreen: true,
             mic_active: false,
+            battery: Some(Battery { percent: 82, charging: true }),
             media: Some(MediaInfo {
                 title: "t".into(),
                 artist: "a".into(),
@@ -96,5 +107,6 @@ mod tests {
         assert!(json.contains("\"micActive\":false"));
         assert!(json.contains("\"positionSec\":1.5"));
         assert!(json.contains("\"durationSec\":3.0"));
+        assert!(json.contains("\"battery\":{\"percent\":82,\"charging\":true}"));
     }
 }

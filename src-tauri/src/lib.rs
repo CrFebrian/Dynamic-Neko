@@ -1,4 +1,4 @@
-// Tahap 2: membaca keadaan sistem (layar penuh, mikrofon, pemutar media) untuk frontend.
+// Membaca keadaan sistem (layar penuh, mikrofon, media, baterai), jendela Pengaturan, dan HTTP keluar.
 // Kontrol jendela tetap dari frontend (src/app/window.ts).
 
 mod system;
@@ -10,6 +10,35 @@ use tauri::{
 };
 
 const WINDOW_LABEL: &str = "island";
+const SETTINGS_LABEL: &str = "settings";
+
+/// Buka jendela Pengaturan, atau fokuskan bila sudah terbuka. Tampilannya dipilih frontend dari label jendela.
+fn show_settings(app: &tauri::AppHandle) -> tauri::Result<()> {
+    if let Some(win) = app.get_webview_window(SETTINGS_LABEL) {
+        let _ = win.unminimize();
+        win.show()?;
+        win.set_focus()?;
+        return Ok(());
+    }
+    tauri::WebviewWindowBuilder::new(app, SETTINGS_LABEL, tauri::WebviewUrl::App("index.html".into()))
+        .title("Pengaturan Yomi Island")
+        .inner_size(900.0, 640.0)
+        .min_inner_size(640.0, 460.0)
+        .center()
+        .build()?;
+    Ok(())
+}
+
+/// Async agar pembuatan jendela tidak menemui deadlock di Windows.
+#[tauri::command]
+async fn open_settings(app: tauri::AppHandle) -> Result<(), String> {
+    show_settings(&app).map_err(|e| e.to_string())
+}
+
+#[tauri::command]
+fn quit_app(app: tauri::AppHandle) {
+    app.exit(0);
+}
 
 /// Snapshot keadaan sistem. Dijalankan di thread terpisah karena memanggil API Windows yang blocking.
 #[tauri::command]
@@ -30,11 +59,13 @@ async fn media_control(action: String) -> Result<(), String> {
 pub fn run() {
     tauri::Builder::default()
         .plugin(tauri_plugin_sql::Builder::default().build())
-        .invoke_handler(tauri::generate_handler![system_snapshot, media_control])
+        .plugin(tauri_plugin_http::init())
+        .invoke_handler(tauri::generate_handler![system_snapshot, media_control, open_settings, quit_app])
         .setup(|app| {
             let toggle = MenuItem::with_id(app, "toggle", "Tampilkan / sembunyikan island", true, None::<&str>)?;
+            let settings = MenuItem::with_id(app, "settings", "Pengaturan", true, None::<&str>)?;
             let quit = MenuItem::with_id(app, "quit", "Keluar", true, None::<&str>)?;
-            let menu = Menu::with_items(app, &[&toggle, &quit])?;
+            let menu = Menu::with_items(app, &[&toggle, &settings, &quit])?;
 
             let mut tray = TrayIconBuilder::new()
                 .tooltip("Yomi Island")
@@ -48,6 +79,14 @@ pub fn run() {
                                 let _ = win.show();
                             }
                         }
+                    }
+                    "settings" => {
+                        let handle = app.clone();
+                        tauri::async_runtime::spawn(async move {
+                            if let Err(e) = show_settings(&handle) {
+                                eprintln!("gagal membuka pengaturan: {e}");
+                            }
+                        });
                     }
                     "quit" => app.exit(0),
                     _ => {}

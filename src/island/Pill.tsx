@@ -2,15 +2,21 @@ import type { KeyboardEvent } from 'react';
 import { Neko } from '../mascot/Neko.tsx';
 import type { WindowDrag } from '../app/useWindowDrag.ts';
 import type { PillView } from './pillState.ts';
+import type { BatteryInfo } from '../lib/system.ts';
+import { BatteryIcon } from './BatteryIcon.tsx';
 
 interface PillProps {
   view: PillView;
   onOpen: () => void;
   drag: WindowDrag;
+  /** Teks jam ("09:57") atau null bila disembunyikan. Hanya tampil saat pill idle. */
+  clock: string | null;
+  battery: BatteryInfo | null;
 }
 
-export function Pill({ view, onOpen, drag }: PillProps) {
-  const cls = ['pill', view.hidden ? 'hid' : '', view.idle ? 'idle' : ''].filter(Boolean).join(' ');
+export function Pill({ view, onOpen, drag, clock, battery }: PillProps) {
+  const wide = view.idle && !view.hidden && (clock !== null || battery !== null);
+  const cls = ['pill', view.hidden ? 'hid' : '', view.idle ? 'idle' : '', wide ? 'wide' : ''].filter(Boolean).join(' ');
 
   const onClick = () => {
     // Setelah menyeret, klik yang menyusul diabaikan.
@@ -35,11 +41,13 @@ export function Pill({ view, onOpen, drag }: PillProps) {
       onKeyDown={onKey}
       {...drag.dragProps}
     >
+      {wide && <span className="pl">{battery !== null && <BatteryIcon b={battery} />}</span>}
       {!view.hidden && (
         <span className="mini">
           <Neko state={view.mascot} />
         </span>
       )}
+      {wide && <span className="pr">{clock !== null && <span className="clk mono">{clock}</span>}</span>}
       {!view.hidden && !view.idle && (
         <>
           {view.dot && <i className={`dot ${view.dot}`} />}

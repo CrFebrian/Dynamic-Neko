@@ -16,11 +16,19 @@ export interface SystemSnapshot {
   /** Ada aplikasi yang sedang memakai mikrofon. */
   micActive: boolean;
   media: MediaInfo | null;
+  /** null bila perangkat tidak punya baterai (PC desktop) atau tidak terbaca. */
+  battery: BatteryInfo | null;
+}
+
+export interface BatteryInfo {
+  /** 0..100. */
+  percent: number;
+  charging: boolean;
 }
 
 export type MediaAction = 'toggle' | 'next' | 'prev';
 
-export const EMPTY_SNAPSHOT: SystemSnapshot = { fullscreen: false, micActive: false, media: null };
+export const EMPTY_SNAPSHOT: SystemSnapshot = { fullscreen: false, micActive: false, media: null, battery: null };
 
 const MAX_TEXT = 200;
 const MAX_SECONDS = 7 * 86_400;
@@ -46,7 +54,14 @@ export function parseSnapshot(raw: unknown): SystemSnapshot {
       };
     }
   }
-  return { fullscreen: raw.fullscreen === true, micActive: raw.micActive === true, media };
+  let battery: BatteryInfo | null = null;
+  if (isRec(raw.battery)) {
+    const pct = raw.battery.percent;
+    if (typeof pct === 'number' && Number.isInteger(pct) && pct >= 0 && pct <= 100) {
+      battery = { percent: pct, charging: raw.battery.charging === true };
+    }
+  }
+  return { fullscreen: raw.fullscreen === true, micActive: raw.micActive === true, media, battery };
 }
 
 export async function fetchSnapshot(): Promise<SystemSnapshot> {
