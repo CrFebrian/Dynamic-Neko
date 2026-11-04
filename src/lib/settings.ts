@@ -1,8 +1,10 @@
 import type { IslandStyle } from '../island/types.ts';
+import type { ThemePref } from './theme.ts';
 
 /** Semua pengaturan yang bisa diubah pengguna. Disimpan sebagai teks di tabel pengaturan. */
 export interface Settings {
   style: IslandStyle;
+  theme: ThemePref;
   beep: boolean;
   meetingMode: boolean;
   watchMode: boolean;
@@ -22,6 +24,7 @@ export type SettingKey = keyof Settings;
 
 export const DEFAULT_SETTINGS: Readonly<Settings> = {
   style: 'dynamic',
+  theme: 'dark',
   beep: true,
   meetingMode: true,
   watchMode: true,
@@ -55,6 +58,9 @@ export function parseSetting<K extends SettingKey>(key: K, raw: string | null): 
   switch (key) {
     case 'style':
       v = raw === 'notch' || raw === 'dynamic' ? raw : d.style;
+      break;
+    case 'theme':
+      v = raw === 'dark' || raw === 'light' || raw === 'system' ? raw : d.theme;
       break;
     case 'mangaLang':
       v = raw === 'id' || raw === 'en' ? raw : d.mangaLang;

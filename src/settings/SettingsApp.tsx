@@ -3,13 +3,15 @@ import { quitApp } from '../app/window.ts';
 import { notifySettingsChanged, onSettingsChanged } from '../lib/bus.ts';
 import { DEFAULT_SETTINGS, EYE_OPTIONS, GOAL_MAX, GOAL_MIN, loadSettings, saveSetting, type SettingKey, type Settings } from '../lib/settings.ts';
 import { getStore } from '../lib/store.ts';
+import { THEME_LABEL, THEME_PREFS } from '../lib/theme.ts';
 import { Switch } from '../ui/Switch.tsx';
+import { useTheme } from '../ui/useTheme.ts';
 
 const APP_VERSION = '0.1.0';
 
 type Cat = 'umum' | 'fokus' | 'pengingat' | 'konten' | 'tentang';
 const CATS: ReadonlyArray<{ key: Cat; label: string; desc: string }> = [
-  { key: 'umum', label: 'Umum', desc: 'Gaya dan isi pill.' },
+  { key: 'umum', label: 'Umum', desc: 'Tema, gaya, dan isi pill.' },
   { key: 'fokus', label: 'Mode fokus', desc: 'Rapat dan menonton.' },
   { key: 'pengingat', label: 'Pengingat', desc: 'Istirahat mata, target baca, dan notifikasi di pill.' },
   { key: 'konten', label: 'Anime, manga, lirik', desc: 'Sumber data dan bahasa.' },
@@ -68,6 +70,7 @@ const Row = ({ title, hint, children }: { title: string; hint?: string; children
 
 export function SettingsApp() {
   const { cfg, update, ready } = useSettings();
+  useTheme(cfg.theme);
   const [cat, setCat] = useState<Cat>('umum');
   const info = CATS.find((c) => c.key === cat) ?? CATS[0];
 
@@ -93,6 +96,15 @@ export function SettingsApp() {
         {cat === 'umum' && (
           <>
             <Card>
+              <Row title="Tema" hint="Gelap, terang, atau mengikuti pengaturan terang/gelap Windows. Berlaku di island dan jendela ini.">
+                <div className="seg" role="group" aria-label="Tema">
+                  {THEME_PREFS.map((t) => (
+                    <button key={t} aria-pressed={cfg.theme === t} onClick={() => update('theme', t)}>
+                      {THEME_LABEL[t]}
+                    </button>
+                  ))}
+                </div>
+              </Row>
               <Row title="Gaya island" hint="Dynamic melayang di bawah tepi atas, Notch menempel ke tepi.">
                 <div className="seg" role="group" aria-label="Gaya island">
                   <button aria-pressed={cfg.style === 'dynamic'} onClick={() => update('style', 'dynamic')}>

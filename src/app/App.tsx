@@ -39,6 +39,7 @@ import { beep } from '../lib/beep.ts';
 import { inTauri } from '../lib/env.ts';
 import { formatTrack } from '../lib/media.ts';
 import { hm } from '../lib/time.ts';
+import { useTheme } from '../ui/useTheme.ts';
 import { onSettingsChanged } from '../lib/bus.ts';
 import { DEFAULT_SETTINGS, GOAL_MAX, GOAL_MIN, loadSettings, type Settings } from '../lib/settings.ts';
 import {
@@ -87,6 +88,7 @@ export function App() {
   const beepOn = cfg.beep;
   const meetingMode = cfg.meetingMode;
   const watchMode = cfg.watchMode;
+  useTheme(cfg.theme);
   const [tasks, setTasks] = useState<Task[]>([]);
   const [timer, setTimerState] = useState<TimerState>(() => createTimer('baca'));
   const [eye, setEyeState] = useState<EyeState>(() => createEye(DEFAULT_SETTINGS.eyeInterval, Date.now()));

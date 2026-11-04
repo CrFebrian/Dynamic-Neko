@@ -36,3 +36,12 @@ export function hm(ms: number): string {
   const d = new Date(ms);
   return `${pad(d.getHours())}:${pad(d.getMinutes())}`;
 }
+
+const DAYS_ID = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'] as const;
+const MONTHS_ID = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'] as const;
+
+/** Milidetik epoch -> "Rabu, 4 November 2026" (waktu lokal, bahasa Indonesia). */
+export function dateId(ms: number): string {
+  const d = new Date(ms);
+  return `${DAYS_ID[d.getDay()]}, ${d.getDate()} ${MONTHS_ID[d.getMonth()]} ${d.getFullYear()}`;
+}

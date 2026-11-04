@@ -7,6 +7,8 @@ test('parseSetting: default bila kosong atau rusak', () => {
   for (const k of SETTING_KEYS) assert.equal(parseSetting(k, null), DEFAULT_SETTINGS[k]);
   assert.equal(parseSetting('style', 'aneh'), 'dynamic');
   assert.equal(parseSetting('mangaLang', 'fr'), 'en');
+  assert.equal(parseSetting('theme', 'biru'), 'dark');
+  assert.equal(parseSetting('theme', 'system'), 'system');
   assert.equal(parseSetting('beep', 'ya'), true);
 });
 test('parseSetting: nilai valid', () => {
@@ -23,7 +25,7 @@ test('parseSetting: angka di luar batas atau bukan bilangan bulat ditolak', () =
   for (const bad of ['4', '501', '1e2x', 'NaN']) assert.equal(parseSetting('goal', bad), 20);
 });
 test('serialize lalu parse konsisten untuk setiap kunci', () => {
-  const sample: Record<string, unknown> = { style: 'notch', mangaLang: 'id', eyeInterval: 30, goal: 55 };
+  const sample: Record<string, unknown> = { style: 'notch', theme: 'light', mangaLang: 'id', eyeInterval: 30, goal: 55 };
   for (const k of SETTING_KEYS) {
     const v = (k in sample ? sample[k] : !DEFAULT_SETTINGS[k]) as never;
     assert.equal(parseSetting(k, serializeSetting(k, v)), v, k);

@@ -115,3 +115,10 @@ Belum terverifikasi (belum dikompilasi/dijalankan): nama API crate `windows` 0.6
 - Pill diam: baterai di kiri, neko di tengah, jam di kanan. Bila baterai/jam dimatikan, neko tetap di tengah.
 - Navigasi bawah: deretan ikon (Hari ini, Baca, Anime, Musik, Santai). Hanya tab aktif yang menampilkan nama; arahkan kursor ke ikon lain untuk melihat namanya. Panah kiri/kanan memindah tab, ikon slider di kanan membuka Pengaturan.
 - Uji: panel tidak terpotong di bawah (tinggi isi dikurangi 10 px untuk navigasi baru).
+
+## Tema dan tanggal
+
+- Tab Hari ini menampilkan tanggal lengkap di kanan ("Rabu, 4 November 2026"), ikut berganti tengah malam.
+- Pengaturan > Umum > Tema: Gelap, Terang, atau Ikuti Windows. Berlaku di island dan jendela Pengaturan, langsung tanpa restart. Maskot neko sengaja tetap gelap (seperti stiker) di tema terang.
+- Semua warna kini lewat variabel CSS di `src/styles/island.css` (blok `:root` dan `:root[data-theme='light']`). Ubah di sana untuk menyesuaikan.
+- Uji: kedua tema di semua tab (Hari ini, Baca, Anime, Musik, Santai), jendela Pengaturan, pill saat notifikasi, peringatan baterai merah; teks kecil (abu-abu) harus tetap terbaca di tema terang. Mode Ikuti Windows bergantung pada `prefers-color-scheme` WebView2 (belum diuji): ganti tema Windows saat aplikasi jalan, tampilan harus ikut.
