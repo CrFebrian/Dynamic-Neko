@@ -96,7 +96,7 @@ export function SettingsApp() {
         {cat === 'umum' && (
           <>
             <Card>
-              <Row title="Tema" hint="Gelap, terang, atau mengikuti pengaturan terang/gelap Windows. Berlaku di island dan jendela ini.">
+              <Row title="Tema" hint="Gelap, terang, atau mengikuti pengaturan terang/gelap Windows.">
                 <div className="seg" role="group" aria-label="Tema">
                   {THEME_PREFS.map((t) => (
                     <button key={t} aria-pressed={cfg.theme === t} onClick={() => update('theme', t)}>
