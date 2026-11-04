@@ -109,3 +109,9 @@ Tidak ada dependency npm atau crate baru, jadi `npm install` tidak perlu diulang
 - Rapat atau layar penuh aktif: notifikasi ditahan, ringkasannya muncul sesudahnya.
 
 Belum terverifikasi (belum dikompilasi/dijalankan): nama API crate `windows` 0.61 untuk `GetSystemPowerStatus`, bentuk izin `http:default` dengan `allow` URL, pembuatan jendela kedua dari Rust, parameter query MangaDex (`order[publishAt]`, `contentRating[]`, `translatedLanguage[]`), dan apakah plugin HTTP menerima header User-Agent kustom.
+
+## Revisi tampilan (pill dan navigasi)
+
+- Pill diam: baterai di kiri, neko di tengah, jam di kanan. Bila baterai/jam dimatikan, neko tetap di tengah.
+- Navigasi bawah: deretan ikon (Hari ini, Baca, Anime, Musik, Santai). Hanya tab aktif yang menampilkan nama; arahkan kursor ke ikon lain untuk melihat namanya. Panah kiri/kanan memindah tab, ikon slider di kanan membuka Pengaturan.
+- Uji: panel tidak terpotong di bawah (tinggi isi dikurangi 10 px untuk navigasi baru).

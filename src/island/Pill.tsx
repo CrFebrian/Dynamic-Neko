@@ -41,17 +41,13 @@ export function Pill({ view, onOpen, drag, clock, battery }: PillProps) {
       onKeyDown={onKey}
       {...drag.dragProps}
     >
+      {wide && <span className="pl">{battery !== null && <BatteryIcon b={battery} />}</span>}
       {!view.hidden && (
         <span className="mini">
           <Neko state={view.mascot} />
         </span>
       )}
-      {wide && (
-        <span className="pinfo">
-          {clock !== null && <span className="clk mono">{clock}</span>}
-          {battery !== null && <BatteryIcon b={battery} />}
-        </span>
-      )}
+      {wide && <span className="pr">{clock !== null && <span className="clk mono">{clock}</span>}</span>}
       {!view.hidden && !view.idle && (
         <>
           {view.dot && <i className={`dot ${view.dot}`} />}

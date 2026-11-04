@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { useState, type ReactNode } from 'react';
+import { IconAnime, IconChill, IconMusic, IconNext, IconPrev, IconRead, IconSettings, IconToday } from './icons.tsx';
 import { Neko } from '../mascot/Neko.tsx';
 import { left, mmss } from '../lib/time.ts';
 import type { MediaAction, MediaInfo } from '../lib/system.ts';
@@ -16,15 +17,14 @@ import { AnimeTab } from './tabs/AnimeTab.tsx';
 import { BooksSection } from './tabs/BooksSection.tsx';
 import { ChillTab } from './tabs/ChillTab.tsx';
 
-type TabKey = 'today' | 'read' | 'anime' | 'music' | 'chill' | 'set';
+type TabKey = 'today' | 'read' | 'anime' | 'music' | 'chill';
 
-const TABS: ReadonlyArray<{ key: TabKey; label: string }> = [
-  { key: 'today', label: 'Hari ini' },
-  { key: 'read', label: 'Baca' },
-  { key: 'anime', label: 'Anime' },
-  { key: 'music', label: 'Musik' },
-  { key: 'chill', label: 'Santai' },
-  { key: 'set', label: 'Pengaturan' },
+const TABS: ReadonlyArray<{ key: TabKey; label: string; icon: ReactNode }> = [
+  { key: 'today', label: 'Hari ini', icon: <IconToday /> },
+  { key: 'read', label: 'Baca', icon: <IconRead /> },
+  { key: 'anime', label: 'Anime', icon: <IconAnime /> },
+  { key: 'music', label: 'Musik', icon: <IconMusic /> },
+  { key: 'chill', label: 'Santai', icon: <IconChill /> },
 ];
 
 export interface PanelProps {
@@ -73,6 +73,10 @@ function bubble(p: PanelProps): string {
 
 export function Panel(p: PanelProps) {
   const [tab, setTab] = useState<TabKey>('today');
+  const step = (d: number) => {
+    const i = TABS.findIndex((t) => t.key === tab);
+    setTab(TABS[(i + d + TABS.length) % TABS.length].key);
+  };
 
   return (
     <div className={`panel${p.closing ? ' closing' : ''}`} role="dialog" aria-label="Yomi Island">
@@ -114,15 +118,31 @@ export function Panel(p: PanelProps) {
       </div>
 
       <nav className="tabs" aria-label="Menu">
-        {TABS.map((t) => (
-          <button
-            key={t.key}
-            aria-current={t.key !== 'set' && tab === t.key}
-            onClick={() => (t.key === 'set' ? p.onOpenSettings() : setTab(t.key))}
-          >
-            {t.label}
-          </button>
-        ))}
+        <button className="navbtn" aria-label="Tab sebelumnya" title="Sebelumnya" onClick={() => step(-1)}>
+          <IconPrev />
+        </button>
+        <div className="tabgroup" role="tablist" aria-label="Tab">
+          {TABS.map((t) => (
+            <button
+              key={t.key}
+              role="tab"
+              className="tabbtn"
+              aria-selected={tab === t.key}
+              aria-label={t.label}
+              title={t.label}
+              onClick={() => setTab(t.key)}
+            >
+              {t.icon}
+              {tab === t.key && <span>{t.label}</span>}
+            </button>
+          ))}
+        </div>
+        <button className="navbtn" aria-label="Pengaturan" title="Pengaturan" onClick={p.onOpenSettings}>
+          <IconSettings />
+        </button>
+        <button className="navbtn" aria-label="Tab berikutnya" title="Berikutnya" onClick={() => step(1)}>
+          <IconNext />
+        </button>
       </nav>
     </div>
   );
