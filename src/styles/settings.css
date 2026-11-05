@@ -55,3 +55,6 @@ html.sv, html.sv body, html.sv #root { background: var(--win-bg); overflow: hidd
 .result .tag { flex: none; padding: 3px 10px; border-radius: 99px; background: var(--fill); color: var(--muted); font-size: 11.5px; }
 .result:hover b { color: var(--sakura); }
 .card > button.result + button.result { border-top: 1px solid var(--line-soft); }
+
+.upd-actions { display: flex; gap: 8px; }
+.btn:disabled { opacity: 0.45; cursor: default; }

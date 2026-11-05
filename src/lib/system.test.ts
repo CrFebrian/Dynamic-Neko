@@ -72,3 +72,10 @@ test('parseSnapshot: baterai valid, tidak valid, dan tidak ada', () => {
   }
   assert.equal(parseSnapshot({}).battery, null);
 });
+
+test('parseSnapshot: volume valid atau null', () => {
+  assert.equal(parseSnapshot({ volume: 40 }).volume, 40);
+  assert.equal(parseSnapshot({ volume: 0 }).volume, 0);
+  for (const bad of [-1, 101, 40.5, '40', null, Number.NaN]) assert.equal(parseSnapshot({ volume: bad }).volume, null);
+  assert.equal(parseSnapshot({}).volume, null);
+});

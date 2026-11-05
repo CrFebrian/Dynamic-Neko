@@ -110,9 +110,11 @@ export function AnimeTab({ now }: Props) {
           {busy ? 'Mencari…' : 'Tambah'}
         </button>
       </form>
-      <p className="note" aria-live="polite">
-        {msg ?? 'Data dari AniList. Hanya judul yang kamu ketik dikirim ke sana.'}
-      </p>
+      {msg && (
+        <p className="note" role="alert">
+          {msg}
+        </p>
+      )}
       <MangaSection now={now} />
     </>
   );

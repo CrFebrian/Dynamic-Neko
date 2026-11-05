@@ -143,3 +143,15 @@ Belum terverifikasi: `app.path().app_config_dir()` memang folder yang sama denga
 - Judul dan keterangan setiap pengaturan ada di satu tempat (`src/settings/catalog.ts`); test memastikan setiap kunci pengaturan punya entri, jadi menambah pengaturan baru tanpa entri akan gagal di `npm test`.
 - Belum ada "Jalankan saat Windows mulai" (butuh plugin autostart); direncanakan di Tahap 4 bersama installer.
 - Uji: klik tiap kategori, cari "gelap" lalu klik hasilnya, ubah tema di Tampilan dan lihat island ikut berubah, ukuran jendela kecil (sidebar jadi baris di atas pada lebar < 700 px).
+
+## Revisi: volume, transisi neko, tur, dan pembaruan
+
+Tidak perlu `npm install` ulang (package.json tidak berubah); `cargo` akan mengunduh ulang fitur crate `windows` yang baru.
+
+Daftar uji di laptop Windows:
+- **Anime**: tidak ada lagi catatan "Data dari MangaDex…" di bawah daftar dan jadwal tayang.
+- **Neko**: ganti keadaan (rapat, musik, istirahat mata) dan lihat ekspresi memudar halus; pill melebar/menyempit dengan transisi, dan muncul halus setelah panel menutup.
+- **Musik**: slider volume mengatur volume utama Windows (bukan volume satu aplikasi). Tombol speaker = bisukan (0%) dan kembalikan.
+- **Pengaturan > Umum > Tur pengenalan**: "Mulai tur" membuka panel dan menampilkan 5 langkah. Tur juga tampil otomatis sekali pada peluncuran pertama. Esc atau "Lewati" mengakhiri tur.
+- **Pengaturan > Umum > Pembaruan**: "Cek sekarang" memeriksa `https://api.github.com/repos/CrFebrian/Dynamic-Neko/releases/latest`. Selama belum ada Release di GitHub, hasilnya "Belum ada rilis". Untuk menguji: buat Release dengan tag `v0.2.0`; tombol "Unduh" membuka halaman rilis. Pengecekan otomatis paling sering 12 jam sekali, dan pill hanya mengumumkan tiap versi satu kali.
+- Versi aplikasi harus sama di `package.json`, `tauri.conf.json`, `Cargo.toml`, dan `src/lib/version.ts` (dijaga test).

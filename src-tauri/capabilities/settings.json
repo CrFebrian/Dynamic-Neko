@@ -1,13 +1,21 @@
 {
   "$schema": "../gen/schemas/desktop-schema.json",
   "identifier": "settings",
-  "description": "Izin jendela Pengaturan: database lokal dan event antar-jendela saja.",
+  "description": "Izin jendela Pengaturan: database lokal, event antar-jendela, dan cek rilis di GitHub.",
   "windows": [
     "settings"
   ],
   "permissions": [
     "core:event:default",
     "sql:default",
-    "sql:allow-execute"
+    "sql:allow-execute",
+    {
+      "identifier": "http:default",
+      "allow": [
+        {
+          "url": "https://api.github.com/repos/CrFebrian/Dynamic-Neko/*"
+        }
+      ]
+    }
   ]
 }

@@ -63,3 +63,42 @@
 .bk .chip { height: 28px; padding: 0 10px; font-size: 12px; }
 .quote { font-style: italic; color: var(--text, inherit); }
 input[type='range'] { accent-color: var(--sakura); }
+
+/* volume */
+.vol { display: flex; align-items: center; gap: 10px; margin-top: 12px; }
+.vol .mono { min-width: 38px; text-align: right; font-size: 12px; color: var(--muted); }
+.volbtn { width: 34px; height: 34px; border-radius: 50%; display: grid; place-items: center; flex: none; color: var(--muted); }
+.volbtn:hover { background: var(--fill); color: var(--ink); }
+.volbtn svg { width: 18px; height: 18px; }
+.vol input[type='range'] { flex: 1; min-width: 0; height: 18px; margin: 0; -webkit-appearance: none; appearance: none; background: transparent; cursor: pointer; }
+.vol input[type='range']::-webkit-slider-runnable-track { height: 5px; border-radius: 99px; background: linear-gradient(to right, var(--sakura) var(--v, 0%), var(--track) var(--v, 0%)); }
+.vol input[type='range']::-webkit-slider-thumb { -webkit-appearance: none; width: 14px; height: 14px; margin-top: -4.5px; border-radius: 50%; background: var(--ink); box-shadow: 0 0 0 3px var(--sakura-soft); }
+
+/* tur pengenalan: kartu melayang di atas isi panel, bagian yang dijelaskan diberi cincin sakura */
+.panel { position: relative; }
+.tour { position: absolute; inset: 0; z-index: 5; display: grid; place-items: center; padding: 16px; background: rgba(8, 7, 12, 0.5); backdrop-filter: blur(2px); animation: tourFade 0.2s ease-out; }
+:root[data-theme='light'] .tour { background: rgba(40, 30, 50, 0.28); }
+.tour-card { width: 100%; max-width: 330px; padding: 16px; border-radius: 20px; background: var(--island); border: 1px solid var(--sakura-line); box-shadow: 0 18px 40px rgba(0, 0, 0, 0.4); animation: tourCard 0.26s cubic-bezier(0.2, 0.9, 0.3, 1.15); }
+.tour-card h3 { margin: 10px 0 4px; font-size: 15px; }
+.tour-card p { margin: 0; font-size: 12.5px; line-height: 1.5; color: var(--muted); }
+.tour-cat { width: 52px; height: 52px; }
+.tour-pill { display: inline-flex; align-items: center; gap: 10px; height: 44px; padding: 0 14px; border-radius: 999px; background: #000; color: #f4eff1; border: 1px solid var(--sakura-line); font-size: 12px; }
+.tour-pill-cat { width: 30px; height: 30px; }
+.tour-dots { display: flex; align-items: center; gap: 5px; margin: 14px 0 12px; }
+.tour-dots i { width: 6px; height: 6px; border-radius: 3px; background: var(--fill-hover); transition: width 0.2s, background 0.2s; }
+.tour-dots i.past { background: var(--sakura-line); }
+.tour-dots i.on { width: 18px; background: var(--sakura); }
+.tour-count { margin-left: auto; font-size: 11px; color: var(--muted); }
+.tour-actions { display: flex; align-items: center; gap: 8px; }
+.tour-actions .grow { flex: 1; }
+.tour-skip { font-size: 12px; color: var(--muted); padding: 6px 4px; }
+.tour-skip:hover { color: var(--ink); }
+.panel[data-hl='head'] .phead,
+.panel[data-hl='tabs'] .tabgroup,
+.panel[data-hl='nav'] .navbtn[aria-label='Pengaturan'] { position: relative; z-index: 6; box-shadow: 0 0 0 2px var(--sakura), 0 0 18px var(--sakura-soft); border-radius: 18px; animation: ringPulse 1.4s ease-in-out infinite; }
+.panel[data-hl='tabs'] .tabgroup { border-radius: 999px; }
+.panel[data-hl='nav'] .navbtn[aria-label='Pengaturan'] { border-radius: 50%; }
+@keyframes tourFade { from { opacity: 0; } to { opacity: 1; } }
+@keyframes tourCard { from { opacity: 0; transform: translateY(8px) scale(0.96); } to { opacity: 1; transform: none; } }
+@keyframes ringPulse { 50% { box-shadow: 0 0 0 3px var(--sakura), 0 0 26px var(--sakura-soft); } }
+@media (prefers-reduced-motion: reduce) { .tour, .tour-card, .panel[data-hl] .phead, .panel[data-hl] .tabgroup, .panel[data-hl] .navbtn { animation: none; } .tour-dots i { transition: none; } }

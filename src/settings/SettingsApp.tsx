@@ -3,7 +3,10 @@ import { quitApp } from '../app/window.ts';
 import { Neko } from '../mascot/Neko.tsx';
 import { CAT_ICON } from './icons.tsx';
 import { CATS, entry, GROUPS, catLabel, searchSettings, type Cat } from './catalog.ts';
-import { notifySettingsChanged, onSettingsChanged } from '../lib/bus.ts';
+import { notifySettingsChanged, onSettingsChanged, requestTour } from '../lib/bus.ts';
+import { APP_VERSION } from '../lib/version.ts';
+import { checkForUpdate, loadUpdateInfo } from '../features/update/updateCheck.ts';
+import { isNewer, RELEASES_PAGE, statusText, type UpdateInfo } from '../features/update/update.ts';
 import { DEFAULT_SETTINGS, EYE_OPTIONS, GOAL_MAX, GOAL_MIN, loadSettings, saveSetting, type SettingKey, type Settings } from '../lib/settings.ts';
 import { getStore } from '../lib/store.ts';
 import { openDataDir, openExternal, readErrorLog } from '../lib/external.ts';
@@ -11,8 +14,6 @@ import { describeOs, issueUrl, lastLines, SAWERIA_URL } from '../lib/report.ts';
 import { THEME_LABEL, THEME_PREFS } from '../lib/theme.ts';
 import { Switch } from '../ui/Switch.tsx';
 import { useTheme } from '../ui/useTheme.ts';
-
-const APP_VERSION = '0.1.0';
 
 
 function useSettings() {
@@ -75,6 +76,29 @@ export function SettingsApp() {
   const [query, setQuery] = useState('');
   const [msg, setMsg] = useState<string | null>(null);
   const searchRef = useRef<HTMLInputElement>(null);
+  const [upd, setUpd] = useState<UpdateInfo | null>(null);
+  const [checking, setChecking] = useState(false);
+  const [updErr, setUpdErr] = useState<string | null>(null);
+
+  useEffect(() => {
+    let alive = true;
+    loadUpdateInfo(getStore())
+      .then((i) => alive && setUpd(i))
+      .catch((e: unknown) => console.error('Gagal membaca info pembaruan:', e));
+    return () => {
+      alive = false;
+    };
+  }, []);
+
+  const checkNow = () => {
+    if (checking) return;
+    setChecking(true);
+    setUpdErr(null);
+    checkForUpdate(getStore(), Date.now(), true)
+      .then(({ info }) => setUpd(info))
+      .catch((e: unknown) => setUpdErr(`Gagal memeriksa. ${e instanceof Error ? e.message : String(e)}`))
+      .finally(() => setChecking(false));
+  };
 
   // Ctrl+F memfokuskan kotak cari.
   useEffect(() => {
@@ -177,6 +201,35 @@ export function SettingsApp() {
                   <Switch on={cfg.autoClose} onChange={(v) => update('autoClose', v)} label={T('autoClose')} hint={H('autoClose')} />
                 </Card>
                 <p className="note">Geser island ke kiri atau kanan dengan menyeret pill atau bagian atas panel. Posisi tersimpan.</p>
+                <h2>Tur pengenalan</h2>
+                <Card>
+                  <Row title={T('tourDone')} hint={H('tourDone')}>
+                    <button className="btn" onClick={() => run(requestTour, 'Gagal memulai tur.')}>
+                      Mulai tur
+                    </button>
+                  </Row>
+                </Card>
+                <h2>Pembaruan</h2>
+                <Card>
+                  <Switch on={cfg.updateCheck} onChange={(v) => update('updateCheck', v)} label={T('updateCheck')} hint={H('updateCheck')} />
+                  <Row title={`Versi ${APP_VERSION}`} hint={updErr ?? (checking ? 'Memeriksa…' : statusText(upd, APP_VERSION))}>
+                    <div className="upd-actions">
+                      {upd?.latest && isNewer(upd.latest, APP_VERSION) && (
+                        <button className="btn pri" onClick={() => run(() => openExternal(RELEASES_PAGE), 'Gagal membuka halaman rilis.')}>
+                          Unduh
+                        </button>
+                      )}
+                      <button className="btn" disabled={checking} onClick={checkNow}>
+                        Cek sekarang
+                      </button>
+                    </div>
+                  </Row>
+                </Card>
+                {msg && (
+                  <p className="note" role="alert">
+                    {msg}
+                  </p>
+                )}
                 <h2>Aplikasi</h2>
                 <Card>
                   <Row title={T('quit')} hint={H('quit')}>

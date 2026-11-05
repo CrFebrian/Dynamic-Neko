@@ -1,8 +1,9 @@
 //! Fungsi murni tanpa ketergantungan Tauri, supaya mudah diuji.
 
 /// URL yang boleh dibuka dari aplikasi. Selain ini ditolak.
-const ALLOWED_URLS: [&str; 2] = [
+const ALLOWED_URLS: [&str; 3] = [
     "https://github.com/CrFebrian/Dynamic-Neko/issues/new",
+    "https://github.com/CrFebrian/Dynamic-Neko/releases/latest",
     "https://saweria.co/BrianCoding",
 ];
 
@@ -14,6 +15,23 @@ pub fn url_allowed(url: &str) -> bool {
     ALLOWED_URLS
         .iter()
         .any(|p| url == *p || url.strip_prefix(p).is_some_and(|rest| rest.starts_with('?')))
+}
+
+/// Persen volume (0..=100) -> skala 0.0..=1.0. Di atas 100 ditolak, bukan dijepit, supaya bug pemanggil terlihat.
+pub fn percent_to_scalar(percent: u8) -> Result<f32, String> {
+    if percent > 100 {
+        return Err(format!("volume di luar rentang: {percent}"));
+    }
+    Ok(f32::from(percent) / 100.0)
+}
+
+/// Skala 0.0..=1.0 -> persen bulat 0..=100. Nilai di luar rentang atau NaN menghasilkan None.
+pub fn scalar_to_percent(v: f32) -> Option<u8> {
+    if v.is_finite() && (0.0..=1.0).contains(&v) {
+        Some((v * 100.0).round() as u8)
+    } else {
+        None
+    }
 }
 
 /// Satu baris, tanpa karakter kontrol, maksimal `max` karakter.
@@ -91,6 +109,30 @@ mod tests {
         }
         let long = format!("https://saweria.co/BrianCoding?{}", "a".repeat(9000));
         assert!(!url_allowed(&long));
+    }
+
+    #[test]
+    fn url_halaman_rilis_diizinkan() {
+        assert!(url_allowed("https://github.com/CrFebrian/Dynamic-Neko/releases/latest"));
+        assert!(!url_allowed("https://github.com/CrFebrian/Dynamic-Neko/releases/latest/../../x"));
+        assert!(!url_allowed("https://github.com/CrFebrian/Dynamic-Neko/releases"));
+    }
+
+    #[test]
+    fn volume_persen_dan_skala() {
+        assert_eq!(percent_to_scalar(0), Ok(0.0));
+        assert_eq!(percent_to_scalar(100), Ok(1.0));
+        assert_eq!(percent_to_scalar(50), Ok(0.5));
+        assert!(percent_to_scalar(101).is_err());
+        assert_eq!(scalar_to_percent(0.0), Some(0));
+        assert_eq!(scalar_to_percent(1.0), Some(100));
+        assert_eq!(scalar_to_percent(0.555), Some(56));
+        for bad in [-0.1_f32, 1.01, f32::NAN, f32::INFINITY] {
+            assert_eq!(scalar_to_percent(bad), None);
+        }
+        for p in 0..=100u8 {
+            assert_eq!(scalar_to_percent(percent_to_scalar(p).unwrap()), Some(p));
+        }
     }
 
     #[test]

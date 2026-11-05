@@ -77,6 +77,14 @@ async fn system_snapshot() -> Result<system::Snapshot, String> {
         .map_err(|e| e.to_string())
 }
 
+/// Atur volume utama Windows, 0..=100. Nilai di luar rentang ditolak.
+#[tauri::command]
+async fn set_volume(percent: u8) -> Result<(), String> {
+    tauri::async_runtime::spawn_blocking(move || system::set_volume(percent))
+        .await
+        .map_err(|e| e.to_string())?
+}
+
 /// Perintah pemutar: "toggle", "next", atau "prev". Nilai lain ditolak.
 #[tauri::command]
 async fn media_control(action: String) -> Result<(), String> {
@@ -89,7 +97,7 @@ pub fn run() {
     tauri::Builder::default()
         .plugin(tauri_plugin_sql::Builder::default().build())
         .plugin(tauri_plugin_http::init())
-        .invoke_handler(tauri::generate_handler![system_snapshot, media_control, open_settings, quit_app, log_error, read_error_log, open_data_dir, open_url])
+        .invoke_handler(tauri::generate_handler![system_snapshot, media_control, set_volume, open_settings, quit_app, log_error, read_error_log, open_data_dir, open_url])
         .setup(|app| {
             let toggle = MenuItem::with_id(app, "toggle", "Tampilkan / sembunyikan island", true, None::<&str>)?;
             let settings = MenuItem::with_id(app, "settings", "Pengaturan", true, None::<&str>)?;

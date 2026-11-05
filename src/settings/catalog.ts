@@ -48,6 +48,8 @@ export interface Entry {
 
 const list: Entry[] = [
   { id: 'autoClose', cat: 'umum', title: 'Tutup otomatis saat kursor keluar', hint: 'Panel kembali jadi pill kecil sesaat setelah kursor meninggalkannya, tanpa menekan ×. Tidak menutup saat kamu sedang mengetik.', keywords: 'hover mouse pill collapse' },
+  { id: 'tourDone', cat: 'umum', title: 'Tur pengenalan', hint: 'Penjelasan singkat letak fitur di island. Tampil otomatis sekali saat pertama dipakai.', keywords: 'tutorial panduan bantuan intro mulai' },
+  { id: 'updateCheck', cat: 'umum', title: 'Beri tahu saat ada versi baru', hint: 'Memeriksa GitHub Releases paling sering 12 jam sekali. Hanya mengirim permintaan biasa; tidak ada data pribadi yang dikirim.', keywords: 'update pembaruan versi rilis release unduh' },
   { id: 'quit', cat: 'umum', title: 'Keluar dari Yomi Island', hint: 'Island ditutup. Buka lagi dari menu Start.', keywords: 'quit exit tutup aplikasi' },
   { id: 'support', cat: 'tentang', title: 'Dukung Yomi Island', hint: 'Aplikasi ini gratis. Traktiran lewat Saweria membantu pengembangannya.', keywords: 'saweria donasi kopi sawer traktir' },
   { id: 'license', cat: 'tentang', title: 'Lisensi', hint: 'Gratis untuk pemakaian pribadi, tidak dijual.', keywords: 'versi version freeware' },
