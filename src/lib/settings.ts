@@ -20,6 +20,10 @@ export interface Settings {
   notifyGacha: boolean;
   mangaLang: 'en' | 'id';
   lyrics: boolean;
+  /** Beri tahu saat ada versi baru di GitHub Releases. */
+  updateCheck: boolean;
+  /** Tur pengenalan sudah pernah selesai atau dilewati. */
+  tourDone: boolean;
 }
 
 export type SettingKey = keyof Settings;
@@ -40,6 +44,8 @@ export const DEFAULT_SETTINGS: Readonly<Settings> = {
   notifyGacha: true,
   mangaLang: 'en',
   lyrics: false,
+  updateCheck: true,
+  tourDone: false,
 };
 
 export const SETTING_KEYS = Object.keys(DEFAULT_SETTINGS) as SettingKey[];

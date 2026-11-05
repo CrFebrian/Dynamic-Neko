@@ -1,4 +1,4 @@
-import { useState, type ReactNode } from 'react';
+import { useCallback, useState, type ReactNode } from 'react';
 import { IconAnime, IconChill, IconMusic, IconNext, IconPrev, IconRead, IconSettings, IconToday } from './icons.tsx';
 import { Neko } from '../mascot/Neko.tsx';
 import { left, mmss } from '../lib/time.ts';
@@ -16,6 +16,8 @@ import { MusicTab } from './tabs/MusicTab.tsx';
 import { AnimeTab } from './tabs/AnimeTab.tsx';
 import { BooksSection } from './tabs/BooksSection.tsx';
 import { ChillTab } from './tabs/ChillTab.tsx';
+import { Tour } from './Tour.tsx';
+import type { Highlight, TourStep } from './tourSteps.ts';
 
 type TabKey = 'today' | 'read' | 'anime' | 'music' | 'chill';
 
@@ -53,8 +55,13 @@ export interface PanelProps {
   onEyeInterval: (min: number) => void;
   onEyeNow: () => void;
   onMedia: (a: MediaAction) => void;
+  volume: number | null;
+  onVolume: (percent: number) => void;
   onRecording: (on: boolean) => void;
   onOpenSettings: () => void;
+  /** Tur pengenalan sedang tampil. */
+  tour: boolean;
+  onTourEnd: () => void;
   /** Kursor masuk/keluar panel; `buttons` = tombol mouse yang sedang ditekan saat keluar. */
   onPanelEnter: () => void;
   onPanelLeave: (buttons: number) => void;
@@ -76,6 +83,8 @@ function bubble(p: PanelProps): string {
 
 export function Panel(p: PanelProps) {
   const [tab, setTab] = useState<TabKey>('today');
+  const [hl, setHl] = useState<Highlight | null>(null);
+  const onTourStep = useCallback((s: TourStep) => setHl(s.highlight), []);
   const step = (d: number) => {
     const i = TABS.findIndex((t) => t.key === tab);
     setTab(TABS[(i + d + TABS.length) % TABS.length].key);
@@ -86,6 +95,7 @@ export function Panel(p: PanelProps) {
       className={`panel${p.closing ? ' closing' : ''}`}
       role="dialog"
       aria-label="Yomi Island"
+      data-hl={p.tour ? hl ?? undefined : undefined}
       onPointerEnter={p.onPanelEnter}
       onPointerLeave={(e) => p.onPanelLeave(e.buttons)}
     >
@@ -119,7 +129,7 @@ export function Panel(p: PanelProps) {
           )}
           {tab === 'read' && <BooksSection />}
           {tab === 'music' && (
-            <MusicTab now={p.now} media={p.media} mediaAt={p.mediaAt} onControl={p.onMedia} simulated={p.sim !== null} />
+            <MusicTab now={p.now} media={p.media} mediaAt={p.mediaAt} onControl={p.onMedia} simulated={p.sim !== null} volume={p.volume} onVolume={p.onVolume} />
           )}
           {tab === 'chill' && <ChillTab now={p.now} eye={p.eye} onInterval={p.onEyeInterval} onNow={p.onEyeNow} recording={p.recording} onRecording={p.onRecording} sim={p.sim} />}
           {tab === 'anime' && <AnimeTab now={p.now} />}
@@ -153,6 +163,7 @@ export function Panel(p: PanelProps) {
           <IconNext />
         </button>
       </nav>
+      {p.tour && <Tour onStep={onTourStep} onEnd={p.onTourEnd} />}
     </div>
   );
 }

@@ -7,6 +7,10 @@ use windows::Media::Control::{
     GlobalSystemMediaTransportControlsSessionManager as SessionManager,
     GlobalSystemMediaTransportControlsSessionPlaybackStatus as PlaybackStatus,
 };
+use std::cell::Cell;
+use windows::Win32::Media::Audio::Endpoints::IAudioEndpointVolume;
+use windows::Win32::Media::Audio::{eMultimedia, eRender, IMMDeviceEnumerator, MMDeviceEnumerator};
+use windows::Win32::System::Com::{CoCreateInstance, CoInitializeEx, CLSCTX_ALL, COINIT_MULTITHREADED};
 use windows::Win32::System::Power::{GetSystemPowerStatus, SYSTEM_POWER_STATUS};
 use windows::Win32::UI::Shell::{
     SHQueryUserNotificationState, QUNS_BUSY, QUNS_PRESENTATION_MODE, QUNS_RUNNING_D3D_FULL_SCREEN,
@@ -19,7 +23,39 @@ pub fn snapshot() -> Snapshot {
         mic_active: mic_active(),
         media: media().ok().flatten(),
         battery: battery(),
+        volume: volume().ok().and_then(crate::util::scalar_to_percent),
     }
+}
+
+thread_local! {
+    static COM_READY: Cell<bool> = const { Cell::new(false) };
+}
+
+/// Endpoint volume perangkat keluaran bawaan. COM diinisialisasi sekali per thread.
+fn endpoint() -> windows::core::Result<IAudioEndpointVolume> {
+    COM_READY.with(|ready| {
+        if !ready.get() {
+            // S_FALSE (sudah diinisialisasi) dan RPC_E_CHANGED_MODE tidak fatal untuk pemakaian ini.
+            let _ = unsafe { CoInitializeEx(None, COINIT_MULTITHREADED) };
+            ready.set(true);
+        }
+    });
+    unsafe {
+        let enumerator: IMMDeviceEnumerator = CoCreateInstance(&MMDeviceEnumerator, None, CLSCTX_ALL)?;
+        let device = enumerator.GetDefaultAudioEndpoint(eRender, eMultimedia)?;
+        device.Activate::<IAudioEndpointVolume>(CLSCTX_ALL, None)
+    }
+}
+
+fn volume() -> windows::core::Result<f32> {
+    unsafe { endpoint()?.GetMasterVolumeLevelScalar() }
+}
+
+pub fn set_volume(scalar: f32) -> Result<(), String> {
+    let run = || -> windows::core::Result<()> {
+        unsafe { endpoint()?.SetMasterVolumeLevelScalar(scalar, std::ptr::null()) }
+    };
+    run().map_err(|e| e.to_string())
 }
 
 /// Baterai perangkat. None bila tidak ada baterai (flag 128) atau persentase tidak diketahui (255).

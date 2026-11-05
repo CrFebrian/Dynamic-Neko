@@ -71,9 +71,11 @@ export function MangaSection({ now }: Props) {
           {busy ? 'Mencari…' : 'Tambah'}
         </button>
       </form>
-      <p className="note" aria-live="polite">
-        {msg ?? `Data dari MangaDex (bab bahasa ${lang === 'id' ? 'Indonesia' : 'Inggris'}, bisa diubah di Pengaturan). Dicek tiap 30 menit.`}
-      </p>
+      {msg && (
+        <p className="note" role="alert">
+          {msg}
+        </p>
+      )}
     </>
   );
 }

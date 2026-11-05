@@ -41,6 +41,8 @@ pub struct Snapshot {
     pub media: Option<MediaInfo>,
     /// None bila perangkat tanpa baterai (PC desktop) atau tidak terbaca.
     pub battery: Option<Battery>,
+    /// Volume utama perangkat keluaran, 0..=100. None bila tidak terbaca.
+    pub volume: Option<u8>,
 }
 
 /// Aksi pemutar yang diizinkan. Nilai lain ditolak sebelum menyentuh API Windows.
@@ -64,6 +66,12 @@ impl MediaAction {
 
 pub fn snapshot() -> Snapshot {
     platform::snapshot()
+}
+
+/// Atur volume utama Windows (0..=100).
+pub fn set_volume(percent: u8) -> Result<(), String> {
+    let scalar = crate::util::percent_to_scalar(percent)?;
+    platform::set_volume(scalar)
 }
 
 pub fn media_control(action: &str) -> Result<(), String> {
@@ -95,6 +103,7 @@ mod tests {
             fullscreen: true,
             mic_active: false,
             battery: Some(Battery { percent: 82, charging: true }),
+            volume: Some(40),
             media: Some(MediaInfo {
                 title: "t".into(),
                 artist: "a".into(),
@@ -108,5 +117,6 @@ mod tests {
         assert!(json.contains("\"positionSec\":1.5"));
         assert!(json.contains("\"durationSec\":3.0"));
         assert!(json.contains("\"battery\":{\"percent\":82,\"charging\":true}"));
+        assert!(json.contains("\"volume\":40"));
     }
 }

@@ -133,6 +133,14 @@ input[type='time'] { width: 92px; color-scheme: dark; }
 .cat { display: block; width: 100%; height: auto; overflow: visible; }
 .cat .head, .cat .ear { fill: #0e0d14; stroke: rgba(255, 155, 187, 0.62); stroke-width: 1.5; stroke-linejoin: round; }
 .cat .inn { fill: rgba(255, 155, 187, 0.38); }
+.cat .earL, .cat .earR { transition: transform 0.26s cubic-bezier(0.3, 0.8, 0.3, 1); }
+.cat .earL { transform-origin: 13px 14px; }
+.cat .earR { transform-origin: 35px 14px; }
+.cat .face { animation: faceIn 0.24s ease-out both; }
+.cat .face.out { animation: faceOut 0.24s ease-in both; pointer-events: none; }
+@keyframes faceIn { from { opacity: 0; transform: scale(0.96); transform-origin: 24px 24px; } to { opacity: 1; transform: none; } }
+@keyframes faceOut { from { opacity: 1; } to { opacity: 0; } }
+@media (prefers-reduced-motion: reduce) { .cat .face, .cat .face.out, .cat .earL, .cat .earR { animation: none; transition: none; } }
 .cat .eye { fill: var(--sakura); filter: drop-shadow(0 0 2.5px var(--sakura)); transform-box: fill-box; transform-origin: center; animation: blink 5.5s infinite; }
 .cat .ln { fill: none; stroke: var(--sakura); stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; filter: drop-shadow(0 0 2px var(--sakura)); }
 .cat .thin { fill: none; stroke: var(--sakura); stroke-width: 1.1; stroke-linecap: round; }
@@ -176,3 +184,12 @@ input[type='time'] { width: 92px; color-scheme: dark; }
 .navbtn:hover { color: var(--ink); background: var(--nav-hover); }
 @keyframes tabIn { from { opacity: 0.4; transform: scale(0.94); } to { opacity: 1; transform: none; } }
 @media (prefers-reduced-motion: reduce) { .tabbtn[aria-selected='true'] { animation: none; } }
+
+/* transisi halus pill: lebar, ukuran neko, isi, dan kemunculan setelah panel menutup */
+:root { interpolate-size: allow-keywords; }
+.pill { transition: width 0.3s cubic-bezier(0.3, 0.8, 0.3, 1), border-color 0.15s; animation: pillIn 0.26s cubic-bezier(0.2, 0.9, 0.3, 1.1) both; }
+.pill .mini { transition: width 0.28s cubic-bezier(0.3, 0.8, 0.3, 1), transform 0.28s cubic-bezier(0.3, 0.8, 0.3, 1); }
+.pill .ptxt, .pill .pl, .pill .pr, .pill .dot, .pill .eq { animation: pillFade 0.26s ease-out both; }
+@keyframes pillIn { from { opacity: 0; transform: scale(0.82); transform-origin: top center; } to { opacity: 1; transform: none; } }
+@keyframes pillFade { from { opacity: 0; transform: translateY(3px); } to { opacity: 1; transform: none; } }
+@media (prefers-reduced-motion: reduce) { .pill, .pill .mini, .pill .ptxt, .pill .pl, .pill .pr, .pill .dot, .pill .eq { animation: none; transition: none; } }

@@ -41,13 +41,18 @@ import { formatTrack } from '../lib/media.ts';
 import { hm } from '../lib/time.ts';
 import { useTheme } from '../ui/useTheme.ts';
 import { AUTO_CLOSE_MS, isTyping } from '../island/autoClose.ts';
-import { onSettingsChanged } from '../lib/bus.ts';
+import { onSettingsChanged, onTourRequested } from '../lib/bus.ts';
+import { APP_VERSION } from '../lib/version.ts';
+import { checkForUpdate, markNotified } from '../features/update/updateCheck.ts';
+import { shouldNotify } from '../features/update/update.ts';
+import { saveSetting } from '../lib/settings.ts';
 import { DEFAULT_SETTINGS, GOAL_MAX, GOAL_MIN, loadSettings, type Settings } from '../lib/settings.ts';
 import {
   EMPTY_SNAPSHOT,
   fetchSnapshot,
   type BatteryInfo,
   mediaControl,
+  setVolume,
   type MediaAction,
   type MediaInfo,
   type SystemSnapshot,
@@ -60,6 +65,7 @@ const CLOSE_MS = 220;
 const ALERT_MS = 7000;
 const DEFAULT_GOAL = DEFAULT_SETTINGS.goal;
 const REMOTE_REFRESH_MS = 30 * 60_000;
+const UPDATE_POLL_MS = 60 * 60_000;
 const DEMO_BATTERY: BatteryInfo = { percent: 76, charging: false };
 
 /** Data contoh untuk simulasi musik di browser. */
@@ -84,6 +90,7 @@ export function App() {
   const [now, setNow] = useState(() => Date.now());
   const [expanded, setExpanded] = useState(false);
   const [closing, setClosing] = useState(false);
+  const [tour, setTour] = useState(false);
   const [cfg, setCfg] = useState<Settings>(DEFAULT_SETTINGS);
   const style = cfg.style;
   const beepOn = cfg.beep;
@@ -100,7 +107,7 @@ export function App() {
   const [held, setHeld] = useState(0);
   const [snap, setSnap] = useState<SystemSnapshot>(EMPTY_SNAPSHOT);
   const [snapAt, setSnapAt] = useState(() => Date.now());
-  const [simState, setSimState] = useState({ mic: false, fullscreen: false, music: false });
+  const [simState, setSimState] = useState({ mic: false, fullscreen: false, music: false, volume: 60 });
 
   // Ref = sumber kebenaran untuk callback yang berjalan di luar render (interval, timeout).
   const timerRef = useRef(timer);
@@ -120,6 +127,9 @@ export function App() {
   const seenRef = useRef<Set<string>>(new Set());
   const lastCheckRef = useRef(Date.now());
   const closeTimer = useRef<number | null>(null);
+  const startTourRef = useRef<() => void>(() => {});
+  const tourRef = useRef(false);
+  tourRef.current = tour;
 
   const setTimer = useCallback((next: TimerState) => {
     timerRef.current = next;
@@ -145,6 +155,7 @@ export function App() {
         micActive: simState.mic,
         media: simState.music ? DEMO_MEDIA : null,
         battery: DEMO_BATTERY,
+        volume: simState.volume,
       };
   const focus = { micActive: system.micActive, meetingMode, fullscreen: system.fullscreen, watchMode };
   const suppressed = isSuppressed(focus);
@@ -205,6 +216,7 @@ export function App() {
   useEffect(() => {
     let cancelled = false;
     (async () => {
+      let tourDone = true; // gagal memuat = jangan ganggu dengan tur
       try {
         const [saved, s, pf, recent] = await Promise.all([
           store.loadTasks(),
@@ -215,6 +227,7 @@ export function App() {
         if (cancelled) return;
         setTasks(saved);
         setCfg(s);
+        tourDone = s.tourDone;
         beepRef.current = s.beep;
         const frac = pf === null ? 0.5 : Number(pf);
         fracRef.current = Number.isFinite(frac) ? Math.min(1, Math.max(0, frac)) : 0.5;
@@ -229,6 +242,8 @@ export function App() {
       }
       if (cancelled) return;
       layoutWindow('collapsed', fracRef.current).catch(logErr('Gagal mengatur jendela:'));
+      // Pertama kali dipakai: tampilkan tur sekali.
+      if (!cancelled && !tourDone) window.setTimeout(() => startTourRef.current(), 1200);
     })();
     return () => {
       cancelled = true;
@@ -424,6 +439,30 @@ export function App() {
     };
   }, [refreshRemote]);
 
+  // Cek versi baru di GitHub Releases (paling sering tiap 12 jam, diatur di checkForUpdate). Gagal = diam, coba lagi jam berikutnya.
+  const checkUpdate = useCallback(async () => {
+    if (!cfgRef.current.updateCheck) return;
+    try {
+      const { info } = await checkForUpdate(store, Date.now());
+      if (shouldNotify(info, APP_VERSION)) {
+        showAlert('excited', `Yomi Island ${info.latest} tersedia. Lihat di Pengaturan.`, 9000);
+        ring();
+        await markNotified(store, info);
+      }
+    } catch (err) {
+      console.error('Gagal memeriksa pembaruan:', err);
+    }
+  }, [store, showAlert, ring]);
+
+  useEffect(() => {
+    const first = window.setTimeout(() => void checkUpdate(), 30_000);
+    const id = window.setInterval(() => void checkUpdate(), UPDATE_POLL_MS);
+    return () => {
+      window.clearTimeout(first);
+      window.clearInterval(id);
+    };
+  }, [checkUpdate]);
+
   // Buka panel: ubah ukuran jendela dulu, baru tampilkan panel (agar tidak terpotong).
   const openPanel = useCallback(async () => {
     if (busyRef.current || expandedRef.current || hiddenRef.current) return;
@@ -442,6 +481,7 @@ export function App() {
   const closePanel = useCallback(() => {
     if (!expandedRef.current || closingRef.current) return;
     closingRef.current = true;
+    setTour(false);
     setClosing(true);
     closeTimer.current = window.setTimeout(() => {
       closeTimer.current = null;
@@ -454,6 +494,23 @@ export function App() {
 
   useEffect(() => cancelCloseTimer, [cancelCloseTimer]);
 
+  // Tur pengenalan: buka panel lalu tampilkan kartu. Selesai/dilewati = ditandai sudah, agar tidak muncul lagi otomatis.
+  const startTour = useCallback(() => {
+    if (hiddenRef.current || tourRef.current) return;
+    void openPanel().then(() => {
+      if (!hiddenRef.current) setTour(true);
+    });
+  }, [openPanel]);
+  startTourRef.current = startTour;
+  const endTour = useCallback(() => {
+    setTour(false);
+    if (!cfgRef.current.tourDone) {
+      setCfg((c) => ({ ...c, tourDone: true }));
+      saveSetting(store, 'tourDone', true).catch(logErr('Gagal menyimpan status tur:'));
+    }
+  }, [store]);
+  useEffect(() => onTourRequested(() => startTourRef.current()), []);
+
   // Tutup otomatis: kursor keluar dari panel (tanpa tombol ditekan, dan tidak sedang mengetik) = sama seperti menekan ×.
   const hoverTimer = useRef<number | null>(null);
   const clearHover = useCallback(() => {
@@ -464,7 +521,7 @@ export function App() {
   }, []);
   const onPanelLeave = useCallback(
     (buttons: number) => {
-      if (!cfgRef.current.autoClose || buttons !== 0) return;
+      if (!cfgRef.current.autoClose || buttons !== 0 || tourRef.current) return;
       clearHover();
       hoverTimer.current = window.setTimeout(() => {
         hoverTimer.current = null;
@@ -481,7 +538,7 @@ export function App() {
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') closePanel();
+      if (e.key === 'Escape' && !tourRef.current) closePanel();
     };
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
@@ -556,6 +613,15 @@ export function App() {
     closePanel();
   };
 
+  const onVolume = (percent: number) => {
+    if (native) {
+      setSnap((s) => ({ ...s, volume: percent }));
+      setVolume(percent).catch(logErr('Gagal mengatur volume:'));
+    } else {
+      setSimState((s) => ({ ...s, volume: percent }));
+    }
+  };
+
   const onMedia = (a: MediaAction) => {
     mediaControl(a).catch(logErr('Gagal mengirim perintah ke pemutar:'));
   };
@@ -621,8 +687,12 @@ export function App() {
           onEyeInterval={eyeInterval}
           onEyeNow={eyeNow}
           onMedia={onMedia}
+          volume={system.volume}
+          onVolume={onVolume}
           onRecording={(on) => setRecStart(on ? Date.now() : null)}
           onOpenSettings={onOpenSettings}
+          tour={tour}
+          onTourEnd={endTour}
           onPanelEnter={clearHover}
           onPanelLeave={onPanelLeave}
         />

@@ -18,6 +18,8 @@ export interface SystemSnapshot {
   media: MediaInfo | null;
   /** null bila perangkat tidak punya baterai (PC desktop) atau tidak terbaca. */
   battery: BatteryInfo | null;
+  /** Volume utama Windows 0..100; null bila tidak terbaca. */
+  volume: number | null;
 }
 
 export interface BatteryInfo {
@@ -28,7 +30,7 @@ export interface BatteryInfo {
 
 export type MediaAction = 'toggle' | 'next' | 'prev';
 
-export const EMPTY_SNAPSHOT: SystemSnapshot = { fullscreen: false, micActive: false, media: null, battery: null };
+export const EMPTY_SNAPSHOT: SystemSnapshot = { fullscreen: false, micActive: false, media: null, battery: null, volume: null };
 
 const MAX_TEXT = 200;
 const MAX_SECONDS = 7 * 86_400;
@@ -61,7 +63,9 @@ export function parseSnapshot(raw: unknown): SystemSnapshot {
       battery = { percent: pct, charging: raw.battery.charging === true };
     }
   }
-  return { fullscreen: raw.fullscreen === true, micActive: raw.micActive === true, media, battery };
+  const vol = raw.volume;
+  const volume = typeof vol === 'number' && Number.isInteger(vol) && vol >= 0 && vol <= 100 ? vol : null;
+  return { fullscreen: raw.fullscreen === true, micActive: raw.micActive === true, media, battery, volume };
 }
 
 export async function fetchSnapshot(): Promise<SystemSnapshot> {
@@ -74,4 +78,12 @@ export async function mediaControl(action: MediaAction): Promise<void> {
   if (!inTauri()) return;
   const { invoke } = await import('@tauri-apps/api/core');
   await invoke('media_control', { action });
+}
+
+/** Atur volume utama Windows (0..100, dibulatkan dan dijepit). */
+export async function setVolume(percent: number): Promise<void> {
+  if (!inTauri()) return;
+  const p = Math.min(100, Math.max(0, Math.round(percent)));
+  const { invoke } = await import('@tauri-apps/api/core');
+  await invoke('set_volume', { percent: p });
 }

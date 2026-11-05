@@ -1,14 +1,21 @@
 /* Jendela Pengaturan: latar buram penuh, bukan transparan seperti island. */
 html.sv, html.sv body, html.sv #root { background: var(--win-bg); overflow: hidden; user-select: auto; }
 
-.sx { display: grid; grid-template-columns: 230px 1fr; height: 100%; }
-.sx-side { display: flex; flex-direction: column; gap: 2px; padding: 18px 12px; background: var(--side-bg); border-right: 1px solid var(--line-soft); overflow: auto; }
-.sx-brand { padding: 4px 10px 16px; }
-.sx-brand b { display: block; font-size: 17px; color: var(--sakura); }
-.sx-brand small { color: var(--muted); font-size: 12px; }
-.sx-side button { text-align: left; padding: 10px 12px; border-radius: 10px; color: var(--muted); font-size: 13.5px; }
-.sx-side button:hover { background: var(--fill-soft); color: var(--ink); }
-.sx-side button[aria-current='page'] { background: var(--sakura-soft); color: var(--sakura); box-shadow: inset 0 0 0 1px var(--sakura-line); }
+.sx { display: grid; grid-template-columns: 262px 1fr; height: 100%; }
+.sx-side { display: flex; flex-direction: column; gap: 2px; padding: 16px 12px 18px; background: var(--side-bg); border-right: 1px solid var(--line-soft); overflow: auto; }
+.sx-brand { display: flex; align-items: center; gap: 10px; padding: 2px 6px 14px; }
+.sx-brand b { display: block; font-size: 17px; }
+.sx-brand small { display: block; color: var(--muted); font-size: 12px; }
+.sx-logo { width: 38px; flex: none; }
+.sx-search { width: 100%; height: 38px; margin-bottom: 8px; padding: 0 12px; border-radius: 12px; background: transparent; border: 1px solid var(--line); color: var(--ink); font: inherit; font-size: 13px; user-select: text; }
+.sx-search::placeholder { color: var(--muted); }
+.sx-group { display: flex; flex-direction: column; gap: 2px; }
+.sx-glabel { padding: 12px 8px 4px; font-size: 12px; color: var(--muted); }
+.sx-side button { display: flex; align-items: center; gap: 12px; text-align: left; padding: 10px 12px; border-radius: 12px; color: var(--ink); font-size: 14px; }
+.sx-side button svg { flex: none; color: var(--muted); }
+.sx-side button:hover { background: var(--fill-soft); }
+.sx-side button[aria-current='page'] { background: var(--sakura-soft); box-shadow: inset 0 0 0 1px var(--sakura-line); }
+.sx-side button[aria-current='page'] svg { color: var(--sakura); }
 
 .sx-main { padding: 26px 34px 40px; overflow: auto; }
 .sx-main h1 { margin: 0; font-size: 26px; }
@@ -33,3 +40,21 @@ html.sv, html.sv body, html.sv #root { background: var(--win-bg); overflow: hidd
   .sx-brand { display: none; }
   .sx-main { padding: 18px 16px 32px; }
 }
+
+/* Tentang */
+.about { display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 8px 0 22px; text-align: center; }
+.about-logo { width: 84px; margin-bottom: 6px; }
+.about b { font-size: 22px; }
+.about .mono { color: var(--muted); font-size: 13px; }
+.about p { margin: 4px 0 0; color: var(--muted); font-size: 13px; }
+
+/* Hasil pencarian */
+.result { display: flex; justify-content: space-between; align-items: center; gap: 16px; width: 100%; padding: 12px 0; text-align: left; }
+.result b { display: block; font-weight: 500; font-size: 14px; }
+.result small { display: block; margin-top: 2px; color: var(--muted); font-size: 12px; line-height: 1.4; }
+.result .tag { flex: none; padding: 3px 10px; border-radius: 99px; background: var(--fill); color: var(--muted); font-size: 11.5px; }
+.result:hover b { color: var(--sakura); }
+.card > button.result + button.result { border-top: 1px solid var(--line-soft); }
+
+.upd-actions { display: flex; gap: 8px; }
+.btn:disabled { opacity: 0.45; cursor: default; }
