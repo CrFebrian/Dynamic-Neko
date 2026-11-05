@@ -1,15 +1,13 @@
-import { fillNoise, type NoiseKind } from './noise.ts';
-import { isLofi, renderLofi, type LofiId } from './lofi.ts';
+import { isLofi, renderLofi } from './lofi.ts';
+import { fileTrack, type AmbientKind } from './tracks.ts';
 
-export type AmbientKind = NoiseKind | LofiId;
+export type { AmbientKind };
 
 /** Laju sampel musik lo-fi: cukup untuk nuansa hangat dan hemat waktu render. */
 const LOFI_RATE = 22050;
 
-/** Mesin suara latar berbasis Web Audio. Tidak memakai file audio, jadi tidak ada urusan lisensi. */
+/** Mesin suara latar berbasis Web Audio: lagu file (public/music) dan musik lo-fi sintetis. */
 type Listener = () => void;
-
-const SECONDS = 4;
 
 class AmbientEngine {
   private ctx: AudioContext | null = null;
@@ -17,9 +15,9 @@ class AmbientEngine {
   private gain: GainNode | null = null;
   private listeners = new Set<Listener>();
   kind: AmbientKind | null = null;
-  /** Lagu lo-fi sedang dirender (beberapa ratus milidetik pertama kali). */
+  /** Lagu sedang dimuat atau dirender (hanya pertama kali; setelahnya dari cache). */
   loading = false;
-  private lofiCache = new Map<LofiId, AudioBuffer>();
+  private cache = new Map<string, AudioBuffer>();
   /** Nomor permintaan terbaru: permintaan lama yang selesai belakangan dibuang. */
   private token = 0;
   volume = 0.4;
@@ -39,34 +37,23 @@ class AmbientEngine {
     this.kind = null;
     const ctx = (this.ctx ??= new AudioContext());
     if (ctx.state === 'suspended') await ctx.resume();
-    let buffer: AudioBuffer;
-    if (isLofi(kind)) {
-      let cached = this.lofiCache.get(kind);
-      if (!cached) {
-        this.loading = true;
-        this.emit();
-        // Beri kesempatan UI menggambar "Menyiapkan…" sebelum render yang memakan CPU.
-        await new Promise<void>((r) => window.setTimeout(r, 30));
-        try {
-          const data = renderLofi(kind, LOFI_RATE);
-          cached = ctx.createBuffer(1, data.length, LOFI_RATE);
-          cached.copyToChannel(data, 0);
-          this.lofiCache.set(kind, cached);
-        } finally {
-          if (mine === this.token) this.loading = false;
-        }
+    let cached = this.cache.get(kind);
+    if (!cached) {
+      this.loading = true;
+      this.emit();
+      try {
+        cached = await this.load(ctx, kind);
+        this.cache.set(kind, cached);
+      } finally {
+        if (mine === this.token) this.loading = false;
       }
-      buffer = cached;
-    } else {
-      buffer = ctx.createBuffer(1, ctx.sampleRate * SECONDS, ctx.sampleRate);
-      fillNoise(buffer.getChannelData(0), kind);
     }
     if (mine !== this.token) {
       this.emit();
       return; // pengguna sudah memilih/menghentikan yang lain
     }
     const src = ctx.createBufferSource();
-    src.buffer = buffer;
+    src.buffer = cached;
     src.loop = true;
     const gain = ctx.createGain();
     gain.gain.value = this.volume;
@@ -76,6 +63,25 @@ class AmbientEngine {
     this.gain = gain;
     this.kind = kind;
     this.emit();
+  }
+
+  /** Siapkan buffer: dekode file atau render musik sintetis. */
+  private async load(ctx: AudioContext, kind: AmbientKind): Promise<AudioBuffer> {
+    const ft = fileTrack(kind);
+    if (ft) {
+      const res = await fetch(`/music/${ft.file}`);
+      if (!res.ok) throw new Error(`Lagu "${ft.label}" tidak bisa dimuat (HTTP ${res.status}).`);
+      return ctx.decodeAudioData(await res.arrayBuffer());
+    }
+    if (isLofi(kind)) {
+      // Beri kesempatan UI menggambar "Menyiapkan…" sebelum render yang memakan CPU.
+      await new Promise<void>((r) => window.setTimeout(r, 30));
+      const data = renderLofi(kind, LOFI_RATE);
+      const buf = ctx.createBuffer(1, data.length, LOFI_RATE);
+      buf.copyToChannel(data, 0);
+      return buf;
+    }
+    throw new Error(`Suara latar tidak dikenal: ${kind}`);
   }
 
   stop(): void {
