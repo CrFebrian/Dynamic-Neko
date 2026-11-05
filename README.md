@@ -155,3 +155,9 @@ Daftar uji di laptop Windows:
 - **Pengaturan > Umum > Tur pengenalan**: "Mulai tur" membuka panel dan menampilkan 5 langkah. Tur juga tampil otomatis sekali pada peluncuran pertama. Esc atau "Lewati" mengakhiri tur.
 - **Pengaturan > Umum > Pembaruan**: "Cek sekarang" memeriksa `https://api.github.com/repos/CrFebrian/Dynamic-Neko/releases/latest`. Selama belum ada Release di GitHub, hasilnya "Belum ada rilis". Untuk menguji: buat Release dengan tag `v0.2.0`; tombol "Unduh" membuka halaman rilis. Pengecekan otomatis paling sering 12 jam sekali, dan pill hanya mengumumkan tiap versi satu kali.
 - Versi aplikasi harus sama di `package.json`, `tauri.conf.json`, `Cargo.toml`, dan `src/lib/version.ts` (dijaga test).
+
+## Revisi: volume sejajar, tab prioritas, musik lo-fi
+
+- **Volume** kini di kanan tombol Next (satu baris dengan prev/putar/next), bukan di bawahnya.
+- **Tab prioritas**: saat panel dibuka, tab yang sedang berjalan tampil dulu: istirahat mata atau penanda rekam = Santai, timer berjalan = Baca, musik diputar = Musik; tanpa aktivitas = Hari ini. Bila aktivitas selesai saat panel terbuka dan kamu belum pindah tab sendiri, kembali ke Hari ini.
+- **Suara latar**: tab Santai kini punya tiga musik lo-fi (malam, hujan, kafe) selain derau. Musik dibuat di laptop dengan Web Audio (karya asli, tanpa file audio, tanpa soal lisensi). Render pertama tiap lagu butuh sekitar 0,3 detik ("Menyiapkan musik…"), setelahnya langsung berputar.

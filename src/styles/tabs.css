@@ -102,3 +102,10 @@ input[type='range'] { accent-color: var(--sakura); }
 @keyframes tourCard { from { opacity: 0; transform: translateY(8px) scale(0.96); } to { opacity: 1; transform: none; } }
 @keyframes ringPulse { 50% { box-shadow: 0 0 0 3px var(--sakura), 0 0 26px var(--sakura-soft); } }
 @media (prefers-reduced-motion: reduce) { .tour, .tour-card, .panel[data-hl] .phead, .panel[data-hl] .tabgroup, .panel[data-hl] .navbtn { animation: none; } .tour-dots i { transition: none; } }
+
+/* volume sejajar dengan tombol pemutar, di kanan tombol next */
+.ctl { align-items: center; }
+.vol.inline { flex: 1; min-width: 0; margin: 0 0 0 10px; padding-left: 12px; border-left: 1px solid var(--line-soft); gap: 6px; }
+.vol.inline .mono { min-width: 32px; font-size: 11px; }
+.ctl .volbtn { width: 34px; height: 34px; background: none; }
+.ctl .volbtn:hover { background: var(--fill); }

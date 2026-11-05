@@ -1,4 +1,5 @@
-import { useCallback, useState, type ReactNode } from 'react';
+import { useCallback, useEffect, useRef, useState, type ReactNode } from 'react';
+import { priorityTab, type TabKey } from './priorityTab.ts';
 import { IconAnime, IconChill, IconMusic, IconNext, IconPrev, IconRead, IconSettings, IconToday } from './icons.tsx';
 import { Neko } from '../mascot/Neko.tsx';
 import { left, mmss } from '../lib/time.ts';
@@ -18,8 +19,6 @@ import { BooksSection } from './tabs/BooksSection.tsx';
 import { ChillTab } from './tabs/ChillTab.tsx';
 import { Tour } from './Tour.tsx';
 import type { Highlight, TourStep } from './tourSteps.ts';
-
-type TabKey = 'today' | 'read' | 'anime' | 'music' | 'chill';
 
 const TABS: ReadonlyArray<{ key: TabKey; label: string; icon: ReactNode }> = [
   { key: 'today', label: 'Hari ini', icon: <IconToday /> },
@@ -82,7 +81,23 @@ function bubble(p: PanelProps): string {
 }
 
 export function Panel(p: PanelProps) {
-  const [tab, setTab] = useState<TabKey>('today');
+  // Tab pertama = aktivitas yang sedang berlangsung. Bila aktivitas selesai saat panel masih terbuka dan
+  // pengguna belum memilih tab sendiri, kembali ke Hari ini.
+  const prio = priorityTab({
+    eyeBreak: eyeActive(p.eye, p.now),
+    recording: p.recording,
+    timerRunning: p.timer.running,
+    musicPlaying: p.media?.playing === true,
+  });
+  const [tab, setTabState] = useState<TabKey>(prio);
+  const touched = useRef(false);
+  const setTab = (t: TabKey) => {
+    touched.current = true;
+    setTabState(t);
+  };
+  useEffect(() => {
+    if (!touched.current && prio === 'today') setTabState('today');
+  }, [prio]);
   const [hl, setHl] = useState<Highlight | null>(null);
   const onTourStep = useCallback((s: TourStep) => setHl(s.highlight), []);
   const step = (d: number) => {
