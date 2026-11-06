@@ -167,3 +167,7 @@ Daftar uji di laptop Windows:
 - Maskot final ada di `src/mascot/Neko.tsx` (+ `src/styles/neko.css`); ekspresi berganti dengan crossfade halus. Ikon aplikasi di `src-tauri/icons`, versi PNG/SVG/GIF semua ekspresi di `assets/`. Semuanya dihasilkan oleh `tools/neko_gen.py` (butuh Python + Pillow + `rsvg-convert`); ubah geometri di sana lalu jalankan ulang agar aset tetap sinkron dengan `Neko.tsx`.
 - Lisensi: `LICENSE.txt` (source-available, pemakaian pribadi non-komersial). Masih draf, belum ditinjau ahli hukum. `THIRD_PARTY_NOTICES` (daftar lisensi pustaka) belum dibuat.
 - Setelah mengganti ikon: jalankan `npm run tauri build` lagi; Windows kadang menyimpan ikon lama di cache, jadi copot-pasang atau restart Explorer bila ikon tidak berubah.
+
+## Website (GitHub Pages)
+
+Situs statis ada di `docs/` (HTML, CSS, JS biasa; tanpa build). Aktifkan: repo Settings > Pages > Source "Deploy from a branch" > Branch `main`, folder `/docs`. Alamatnya `https://crfebrian.github.io/Dynamic-Neko/`. Gratis untuk repo publik; repo privat butuh GitHub Pro. Tombol Unduh mengarah ke `releases/latest`, jadi tidak perlu diubah tiap rilis. Font diambil dari Google Fonts; contoh island di hero memakai data karangan, tanpa permintaan jaringan.

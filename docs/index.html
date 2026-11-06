@@ -1,0 +1,155 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Yomi Island: island neko untuk Windows</title>
+  <meta name="description" content="Pill kecil di atas layar Windows yang menampilkan baterai dan jam, mengingatkan task hari ini, menghitung mundur anime, dan mengontrol musik. Neko di dalamnya berubah ekspresi sesuai kegiatanmu." />
+  <meta name="theme-color" content="#fff4f7" />
+  <link rel="icon" href="assets/favicon.png" type="image/png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@400;500;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <a class="skip" href="#isi">Lewati ke isi</a>
+
+  <header class="top">
+    <a class="brand" href="#"><img src="assets/icon-128.png" alt="" width="28" height="28" />Yomi Island</a>
+    <nav aria-label="Navigasi">
+      <a href="#ekspresi">Neko</a>
+      <a href="#fitur">Fitur</a>
+      <a href="#pasang">Pasang</a>
+      <a href="#privasi">Privasi</a>
+    </nav>
+  </header>
+
+  <main id="isi">
+    <section class="hero">
+      <h1>Pulau kecil di atas layar yang mengingatkan tugasmu hari ini.</h1>
+      <p class="lead">Yomi Island menampilkan baterai, jam, dan seekor neko yang berubah ekspresi sesuai kegiatanmu. Klik untuk membuka task, timer baca, jadwal anime, dan kontrol musik.</p>
+      <div class="cta">
+        <a class="btn primary" href="https://github.com/CrFebrian/Dynamic-Neko/releases/latest">Unduh untuk Windows</a>
+        <a class="btn" href="https://github.com/CrFebrian/Dynamic-Neko">Lihat kode</a>
+      </div>
+      <p class="fine">Windows 10 dan 11. Gratis untuk pemakaian pribadi.</p>
+
+      <div class="stage" aria-label="Contoh Yomi Island yang bisa dicoba">
+        <div class="island" id="island" data-open="false">
+          <button class="pill" id="pill" type="button" aria-expanded="false" aria-controls="panel">
+            <span class="bat" aria-label="Baterai contoh 76 persen">76%</span>
+            <img class="neko" id="neko" src="assets/neko/idle.gif" alt="Neko" width="46" height="35" />
+            <span class="clk" id="clock" aria-label="Jam sekarang">09.41</span>
+          </button>
+          <div class="panel" id="panel" inert>
+            <div class="panel-inner">
+              <div class="views">
+                <section id="v-today" role="tabpanel" aria-labelledby="t-today">
+                  <h2 id="today-date">Hari ini</h2>
+                  <ul class="rows">
+                    <li><span>Baca bab 12</span><em>20.00</em></li>
+                    <li><span>Kembalikan buku ke perpustakaan</span><em>besok</em></li>
+                    <li><span>Catat target minggu ini</span><em>tanpa jam</em></li>
+                  </ul>
+                </section>
+                <section id="v-read" role="tabpanel" aria-labelledby="t-read" hidden>
+                  <h2>Timer baca</h2>
+                  <p class="big">24:12</p>
+                  <ul class="rows">
+                    <li><span>Target halaman hari ini</span><em>18 / 30</em></li>
+                    <li><span>Beruntun membaca</span><em>6 hari</em></li>
+                  </ul>
+                </section>
+                <section id="v-anime" role="tabpanel" aria-labelledby="t-anime" hidden>
+                  <h2>Jadwal tayang</h2>
+                  <ul class="rows">
+                    <li><span>Kitsune no Yoru, ep. 8</span><em>2 hari 4 jam</em></li>
+                    <li><span>Hoshi no Pianist, ep. 3</span><em>5 jam</em></li>
+                    <li><span>Manga: Tsuki no Tegami</span><em>bab 41 baru</em></li>
+                  </ul>
+                </section>
+                <section id="v-music" role="tabpanel" aria-labelledby="t-music" hidden>
+                  <h2>Sedang diputar</h2>
+                  <p class="track">Judul Lagu<span>Nama Artis</span></p>
+                  <div class="bar" aria-hidden="true"><i></i></div>
+                  <p class="lyric">Lirik berjalan ikut tampil di sini.</p>
+                </section>
+                <section id="v-chill" role="tabpanel" aria-labelledby="t-chill" hidden>
+                  <h2>Istirahat mata</h2>
+                  <p class="soft">Tiap 20 menit, lihat sesuatu sejauh 6 meter selama 20 detik.</p>
+                  <p class="chips"><span>An Ode To</span><span>Lo-fi malam</span><span>Lo-fi kafe</span></p>
+                </section>
+              </div>
+              <div class="tabs" role="tablist" aria-label="Tab contoh">
+                <button role="tab" id="t-today" aria-selected="true" data-view="today" data-mood="idle" type="button">Hari ini</button>
+                <button role="tab" id="t-read" aria-selected="false" data-view="read" data-mood="reading" type="button" tabindex="-1">Baca</button>
+                <button role="tab" id="t-anime" aria-selected="false" data-view="anime" data-mood="excited" type="button" tabindex="-1">Anime</button>
+                <button role="tab" id="t-music" aria-selected="false" data-view="music" data-mood="music" type="button" tabindex="-1">Musik</button>
+                <button role="tab" id="t-chill" aria-selected="false" data-view="chill" data-mood="sleep" type="button" tabindex="-1">Santai</button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <p class="hint" id="hint">Coba klik pill di atas. Ini contoh, isinya bukan data asli.</p>
+      </div>
+    </section>
+
+    <section id="ekspresi" class="block">
+      <h2>Neko ikut membaca suasana</h2>
+      <p class="intro">Pill kecil cukup dilirik sekilas. Dari ekspresi neko saja kamu sudah tahu keadaanmu.</p>
+      <ul class="moods">
+        <li><img src="assets/neko/idle.png" alt="" width="112" height="84" loading="lazy" /><h3>Siaga</h3><p>Task masih lama, atau kamu sedang rapat atau merekam. Titik kecil menandai mik aktif atau rekaman.</p></li>
+        <li><img src="assets/neko/excited.png" alt="" width="112" height="84" loading="lazy" /><h3>Semangat</h3><p>Task kurang dari 15 menit lagi, sesi timer selesai, target halaman tercapai, atau ada episode dan bab baru.</p></li>
+        <li><img src="assets/neko/shock.png" alt="" width="112" height="84" loading="lazy" /><h3>Kaget</h3><p>Task baru saja lewat batas waktu, sampai 10 menit.</p></li>
+        <li><img src="assets/neko/sad.png" alt="" width="112" height="84" loading="lazy" /><h3>Sedih</h3><p>Task terlambat lebih dari 10 menit.</p></li>
+        <li><img src="assets/neko/reading.png" alt="" width="112" height="84" loading="lazy" /><h3>Membaca</h3><p>Timer baca sedang berjalan. Sisa waktu tampil di pill.</p></li>
+        <li><img src="assets/neko/music.png" alt="" width="112" height="84" loading="lazy" /><h3>Mendengar musik</h3><p>Ada lagu yang diputar di Spotify, pemutar musik, atau browser.</p></li>
+        <li><img src="assets/neko/sleep.png" alt="" width="112" height="84" loading="lazy" /><h3>Tidur</h3><p>Tidak ada yang perlu dikerjakan, atau waktunya istirahat mata. Saat ada video atau game layar penuh, island menyembunyikan diri.</p></li>
+      </ul>
+    </section>
+
+    <section id="fitur" class="block">
+      <h2>Lima tab, satu pulau</h2>
+      <dl class="features">
+        <div><dt>Hari ini</dt><dd>Daftar task dengan tanggal lengkap. Pill mengingatkan sebelum waktunya habis.</dd></div>
+        <div><dt>Baca</dt><dd>Timer fokus dan rehat, target halaman harian, daftar buku, dan hitungan hari beruntun membaca.</dd></div>
+        <div><dt>Anime</dt><dd>Hitung mundur episode berikutnya dari AniList, plus update bab manga dari MangaDex. Bahasa bab bisa diubah di Pengaturan.</dd></div>
+        <div><dt>Musik</dt><dd>Judul, putar, jeda, lompat lagu, volume Windows, dan lirik berjalan dari LRCLIB bila dinyalakan.</dd></div>
+        <div><dt>Santai</dt><dd>Istirahat mata 20-20-20, penanda saat layar direkam, kutipan harian, pengingat reset harian game, dan musik lo-fi sebagai suara latar.</dd></div>
+      </dl>
+      <p class="more">Mode rapat menahan notifikasi saat mik aktif. Tema gelap atau terang mengikuti Windows atau pilihanmu, dan jendela Pengaturan punya pencarian.</p>
+    </section>
+
+    <section id="pasang" class="block">
+      <h2>Cara memasang</h2>
+      <ol class="steps">
+        <li><b>Unduh installer.</b> Ambil berkas <code>…-setup.exe</code> dari halaman <a href="https://github.com/CrFebrian/Dynamic-Neko/releases/latest">rilis terbaru</a>.</li>
+        <li><b>Jalankan.</b> Windows mungkin menampilkan "Windows protected your PC" karena aplikasinya belum bertanda tangan digital. Pilih <i>Informasi lebih lanjut</i>, lalu <i>Tetap jalankan</i>. Pastikan berkas berasal dari halaman rilis di atas.</li>
+        <li><b>Lihat ke tepi atas layar.</b> Pill muncul di tengah. Klik untuk membuka panel, atau seret ke kiri dan kanan. Tur singkat tampil pada pertama kali dipakai.</li>
+      </ol>
+      <p class="more">Pembaruan: aplikasi memeriksa rilis baru di GitHub paling sering 12 jam sekali dan memberi tahu lewat pill. Bisa dimatikan di Pengaturan, bagian Umum.</p>
+    </section>
+
+    <section id="privasi" class="block">
+      <h2>Data tetap di laptopmu</h2>
+      <p class="intro">Task, buku, dan pengaturan disimpan lokal. Tidak ada akun dan tidak ada telemetri. Aplikasi hanya menghubungi layanan berikut, dan hanya untuk fitur yang kamu pakai:</p>
+      <ul class="svc">
+        <li><b>AniList</b> untuk jadwal anime</li>
+        <li><b>MangaDex</b> untuk bab manga</li>
+        <li><b>LRCLIB</b> untuk lirik, bila dinyalakan</li>
+        <li><b>GitHub</b> untuk cek versi baru, bila dinyalakan</li>
+      </ul>
+      <p class="more">Ada masalah? Lewat Pengaturan, bagian "Ada masalah?", kamu bisa membuka folder log dan mengirim laporan lewat formulir GitHub. Isi laporan kamu tinjau sendiri sebelum dikirim.</p>
+    </section>
+  </main>
+
+  <footer class="foot">
+    <p>Yomi Island © 2026 CrFebrian. Lisensi sumber terlihat untuk pemakaian pribadi non-komersial, <a href="https://github.com/CrFebrian/Dynamic-Neko/blob/main/LICENSE.txt">baca selengkapnya</a>.</p>
+    <p>Lagu "An Ode To (demo)" oleh Kenji Peach, dipakai dengan izin pembuatnya.</p>
+    <p class="links"><a href="https://github.com/CrFebrian/Dynamic-Neko/issues">Laporkan masalah</a><a href="https://saweria.co/BrianCoding">Traktir lewat Saweria</a></p>
+  </footer>
+
+  <script src="app.js"></script>
+</body>
+</html>
