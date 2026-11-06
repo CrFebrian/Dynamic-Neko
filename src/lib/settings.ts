@@ -86,7 +86,7 @@ export function parseSetting<K extends SettingKey>(key: K, raw: string | null): 
   return v as Settings[K];
 }
 
-export function serializeSetting<K extends SettingKey>(key: K, value: Settings[K]): string {
+export function serializeSetting<K extends SettingKey>(_key: K, value: Settings[K]): string {
   const v = value as unknown;
   return typeof v === 'boolean' ? (v ? '1' : '0') : String(v);
 }

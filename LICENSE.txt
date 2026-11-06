@@ -1,43 +1,68 @@
-DRAF - belum ditinjau ahli hukum. Isi bagian [KURUNG SIKU] sebelum dipakai.
+DRAF - belum ditinjau ahli hukum. Sebelum rilis publik, sebaiknya ditinjau
+oleh orang yang paham hukum hak cipta di tempat Anda.
 
-YOMI ISLAND - LISENSI PENGGUNAAN PRIBADI (FREEWARE)
-Hak cipta (c) [TAHUN] [NAMA PEMEGANG HAK CIPTA]. Seluruh hak dilindungi.
+YOMI ISLAND - LISENSI SUMBER TERLIHAT (SOURCE-AVAILABLE), PEMAKAIAN PRIBADI
+Hak cipta (c) 2026 CrFebrian. Seluruh hak dilindungi, kecuali yang diberikan
+secara tegas di bawah ini.
 
-1. Hak yang diberikan
-   Anda boleh memasang dan menggunakan Yomi Island ("Perangkat Lunak") pada
-   perangkat milik Anda sendiri, tanpa biaya, untuk keperluan pribadi dan
-   non-komersial.
+Ini BUKAN lisensi sumber terbuka (open source). Kode sumber boleh dibaca, tetapi
+pemakaiannya dibatasi seperti berikut.
 
-2. Yang tidak diperbolehkan
-   a. Menjual, menyewakan, atau meminta bayaran atas Perangkat Lunak.
-   b. Mengubah, membongkar (reverse engineering), atau menurunkan karya
-      turunan, kecuali bila hukum yang berlaku tidak memperbolehkan larangan ini.
-   c. Mendistribusikan ulang Perangkat Lunak. [PILIH: "tanpa izin tertulis" /
-      "kecuali installer asli yang utuh dan gratis"]
-   d. Menghapus atau mengubah pemberitahuan hak cipta.
+1. Yang boleh Anda lakukan (pribadi dan non-komersial)
+   a. Membaca dan mempelajari kode sumber.
+   b. Mengunduh, membangun (build), dan menjalankan Yomi Island ("Perangkat
+      Lunak") di perangkat milik Anda sendiri, tanpa biaya.
+   c. Mengubah salinan Anda sendiri untuk keperluan pribadi.
+   d. Mengutip bagian kecil kode dengan menyebut sumbernya, untuk belajar atau
+      membahas.
 
-3. Kode sumber
-   Kode sumber tidak dipublikasikan dan tidak dilisensikan kepada pengguna.
+2. Yang tidak boleh Anda lakukan tanpa izin tertulis dari pemegang hak cipta
+   a. Menjual, menyewakan, atau meminta bayaran atas Perangkat Lunak atau
+      turunannya, atau memakainya untuk tujuan komersial.
+   b. Mendistribusikan ulang Perangkat Lunak atau versi yang Anda ubah, dalam
+      bentuk kode maupun installer, termasuk mengunggahnya ke toko aplikasi
+      atau situs lain. Membagikan tautan ke rilis resmi diperbolehkan.
+   c. Menerbitkan karya turunan atau meniru produk ini dengan nama, maskot,
+      atau tampilan yang dapat dikira sebagai Yomi Island.
+   d. Menghapus atau mengubah pemberitahuan hak cipta dan atribusi.
 
-4. Maskot dan aset
-   Maskot neko, ikon, dan seluruh aset visual adalah milik pemegang hak cipta
-   dan tidak boleh dipakai di luar Perangkat Lunak tanpa izin tertulis.
+3. Maskot, ikon, dan aset visual
+   Maskot neko, ikon, dan seluruh aset visual (folder assets dan src-tauri/icons)
+   adalah milik pemegang hak cipta. Aset ini dilisensikan hanya sebagai bagian
+   dari Perangkat Lunak dan tidak boleh dipakai terpisah atau di proyek lain.
 
-5. Komponen pihak ketiga
-   Perangkat Lunak memuat komponen sumber terbuka yang tunduk pada lisensinya
-   masing-masing (daftar menyusul di THIRD_PARTY_NOTICES). Lisensi ini tidak
-   mengubah hak Anda atas komponen tersebut.
+4. Musik
+   Lagu "An Ode To (demo)" oleh Kenji Peach disertakan dengan izin pembuatnya
+   untuk dipakai di Perangkat Lunak ini. Lagu itu tetap milik pembuatnya dan
+   tidak termasuk dalam lisensi ini: jangan mengambilnya untuk dipakai atau
+   dibagikan terpisah. Musik lo-fi sintetis bawaan (dihasilkan oleh kode)
+   mengikuti lisensi Perangkat Lunak.
 
-6. Data
-   Data pengguna (task, pengaturan) disimpan lokal di perangkat. [PASTIKAN
-   kalimat ini tetap benar bila nanti ada fitur sinkronisasi atau telemetri.]
+5. Kontribusi
+   Bila Anda mengirim perbaikan atau saran kode (misalnya lewat pull request),
+   Anda memberi pemegang hak cipta hak yang tidak eksklusif dan bebas biaya
+   untuk memakai, mengubah, dan menyertakannya dalam Perangkat Lunak.
 
-7. Tanpa jaminan
+6. Komponen pihak ketiga
+   Perangkat Lunak memuat komponen sumber terbuka (antara lain Tauri, React,
+   dan pustaka Rust/npm lain) yang tunduk pada lisensinya masing-masing. Daftar
+   lengkapnya menyusul di THIRD_PARTY_NOTICES. Lisensi ini tidak mengubah hak
+   Anda atas komponen tersebut.
+
+7. Data dan layanan online
+   Task, buku, dan pengaturan disimpan lokal di perangkat Anda. Perangkat Lunak
+   menghubungi layanan pihak ketiga hanya untuk fitur yang Anda pakai: AniList
+   (anime), MangaDex (manga), LRCLIB (lirik, bila dinyalakan), dan GitHub
+   (cek versi baru, bila dinyalakan). Tidak ada telemetri. Perubahan di masa
+   depan akan dicatat di README dan lisensi ini.
+
+8. Tanpa jaminan
    Perangkat Lunak disediakan "apa adanya", tanpa jaminan apa pun. Pemegang hak
    cipta tidak bertanggung jawab atas kerugian yang timbul dari pemakaian,
    sejauh diizinkan hukum yang berlaku.
 
-8. Pengakhiran
+9. Pengakhiran
    Hak Anda berakhir otomatis bila Anda melanggar syarat di atas.
 
-Kontak: [EMAIL]
+Kontak dan izin khusus (misalnya pemakaian komersial): buka issue di
+https://github.com/CrFebrian/Dynamic-Neko/issues

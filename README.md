@@ -155,3 +155,15 @@ Daftar uji di laptop Windows:
 - **Pengaturan > Umum > Tur pengenalan**: "Mulai tur" membuka panel dan menampilkan 5 langkah. Tur juga tampil otomatis sekali pada peluncuran pertama. Esc atau "Lewati" mengakhiri tur.
 - **Pengaturan > Umum > Pembaruan**: "Cek sekarang" memeriksa `https://api.github.com/repos/CrFebrian/Dynamic-Neko/releases/latest`. Selama belum ada Release di GitHub, hasilnya "Belum ada rilis". Untuk menguji: buat Release dengan tag `v0.2.0`; tombol "Unduh" membuka halaman rilis. Pengecekan otomatis paling sering 12 jam sekali, dan pill hanya mengumumkan tiap versi satu kali.
 - Versi aplikasi harus sama di `package.json`, `tauri.conf.json`, `Cargo.toml`, dan `src/lib/version.ts` (dijaga test).
+
+## Revisi: volume sejajar, tab prioritas, musik lo-fi
+
+- **Volume** kini di kanan tombol Next (satu baris dengan prev/putar/next), bukan di bawahnya.
+- **Tab prioritas**: saat panel dibuka, tab yang sedang berjalan tampil dulu: istirahat mata atau penanda rekam = Santai, timer berjalan = Baca, musik diputar = Musik; tanpa aktivitas = Hari ini. Bila aktivitas selesai saat panel terbuka dan kamu belum pindah tab sendiri, kembali ke Hari ini.
+- **Suara latar**: derau (hujan/angin/putih) dihapus. Pilihannya kini lagu file di `public/music/` (saat ini "An Ode To" oleh Kenji Peach, dikonversi ke .ogg) ditambah tiga musik lo-fi sintetis bawaan (malam, hujan, kafe). Menambah lagu: taruh file `.ogg`/`.mp3` di `public/music/`, lalu tambah satu baris di `src/features/ambient/tracks.ts` (nama pencipta wajib diisi; test memeriksa file-nya ada). Pastikan kamu punya izin memakai dan membagikan lagunya sebelum rilis publik.
+
+## Maskot, ikon, dan lisensi
+
+- Maskot final ada di `src/mascot/Neko.tsx` (+ `src/styles/neko.css`); ekspresi berganti dengan crossfade halus. Ikon aplikasi di `src-tauri/icons`, versi PNG/SVG/GIF semua ekspresi di `assets/`. Semuanya dihasilkan oleh `tools/neko_gen.py` (butuh Python + Pillow + `rsvg-convert`); ubah geometri di sana lalu jalankan ulang agar aset tetap sinkron dengan `Neko.tsx`.
+- Lisensi: `LICENSE.txt` (source-available, pemakaian pribadi non-komersial). Masih draf, belum ditinjau ahli hukum. `THIRD_PARTY_NOTICES` (daftar lisensi pustaka) belum dibuat.
+- Setelah mengganti ikon: jalankan `npm run tauri build` lagi; Windows kadang menyimpan ikon lama di cache, jadi copot-pasang atau restart Explorer bila ikon tidak berubah.

@@ -1,0 +1,79 @@
+/* Animasi maskot neko. Dipakai oleh src/mascot/Neko.tsx.
+   Satuan px di sini = satuan koordinat SVG (viewBox), bukan piksel layar. */
+
+.nk { display: block; width: 100%; height: auto; overflow: visible; }
+
+.nk-head { transform-origin: 24px 34px; }
+.nk-h-idle { animation: nk-breath 4s ease-in-out infinite; }
+.nk-h-sleep { animation: nk-breath 4s ease-in-out infinite; }
+.nk-h-sad { animation: nk-breath 5s ease-in-out infinite; }
+.nk-h-reading { animation: nk-breath 4s ease-in-out infinite; }
+.nk-h-excited { animation: nk-hop 0.5s ease-in-out infinite; }
+.nk-h-music { animation: nk-bob 1s ease-in-out infinite; }
+.nk-h-shock { animation: nk-shake 2s linear infinite; }
+
+.nk-blink { transform-box: fill-box; transform-origin: center; animation: nk-blink 5.5s infinite; }
+.nk-twitch { transform-origin: 13px 14px; animation: nk-twitch 5s infinite; }
+.nk-sweep { animation: nk-sweep 3s linear infinite; }
+
+.nk-z { animation: nk-z 3s infinite; opacity: 0; }
+.nk-note { animation: nk-note 2.4s infinite; opacity: 0; }
+.nk-drop { animation: nk-fall 2s infinite; }
+.nk-tear { animation: nk-tear 2.4s infinite; opacity: 0; }
+.nk-spark { transform-box: fill-box; transform-origin: center; animation: nk-spark 1s ease-in-out infinite; }
+.nk-spark-b { animation-delay: 0.35s; }
+
+@keyframes nk-breath { 50% { transform: translateY(0.3px) scaleY(1.015); } }
+@keyframes nk-hop { 50% { transform: translateY(-1.7px); } }
+@keyframes nk-bob {
+  0%, 100% { transform: rotate(0) translateY(0); }
+  25% { transform: rotate(3.6deg) translateY(-0.6px); }
+  50% { transform: rotate(0) translateY(0); }
+  75% { transform: rotate(-3.6deg) translateY(-0.6px); }
+}
+@keyframes nk-shake {
+  0%, 25%, 100% { transform: none; }
+  3% { transform: translateX(0.55px); }
+  6% { transform: translateX(-0.55px); }
+  9% { transform: translateX(0.55px); }
+  12% { transform: translateX(-0.55px); }
+  15% { transform: translateX(0.4px); }
+  18% { transform: translateX(-0.4px); }
+}
+@keyframes nk-blink { 0%, 92%, 100% { transform: scaleY(1); } 95% { transform: scaleY(0.08); } }
+@keyframes nk-twitch { 0%, 28%, 46%, 100% { transform: rotate(0); } 37% { transform: rotate(-9deg); } }
+@keyframes nk-sweep {
+  0%, 100% { transform: translateX(-1.4px); }
+  85% { transform: translateX(1.4px); }
+}
+@keyframes nk-z {
+  0% { opacity: 0; transform: translate(0, 3px) scale(0.6); }
+  40% { opacity: 1; }
+  100% { opacity: 0; transform: translate(5px, -9px) scale(1.2); }
+}
+@keyframes nk-note {
+  0% { opacity: 0; transform: translateY(0) rotate(0); }
+  30% { opacity: 1; }
+  100% { opacity: 0; transform: translate(3px, -13px) rotate(12deg); }
+}
+@keyframes nk-fall { 0% { opacity: 1; transform: translateY(0); } 100% { opacity: 0; transform: translateY(14px); } }
+@keyframes nk-tear {
+  0% { opacity: 0; transform: translateY(0); }
+  25% { opacity: 0.9; }
+  100% { opacity: 0; transform: translateY(9px); }
+}
+@keyframes nk-spark { 50% { transform: scale(0.55); opacity: 0.7; } }
+
+@media (prefers-reduced-motion: reduce) {
+  .nk *, .nk { animation: none !important; }
+  .nk-z, .nk-note, .nk-tear { opacity: 0.8; }
+}
+
+/* transisi antar-ekspresi (pembungkus di Neko.tsx) */
+.nk-stack { display: block; position: relative; width: 100%; }
+.nk-layer { display: block; }
+.nk-out { position: absolute; inset: 0; pointer-events: none; animation: nk-out 0.24s ease-in both; }
+.nk-in { animation: nk-in 0.24s ease-out both; }
+@keyframes nk-in { from { opacity: 0; transform: scale(0.96); } to { opacity: 1; transform: none; } }
+@keyframes nk-out { from { opacity: 1; } to { opacity: 0; } }
+@media (prefers-reduced-motion: reduce) { .nk-out, .nk-in { animation: none; } }

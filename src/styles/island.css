@@ -130,34 +130,10 @@ input[type='time'] { width: 92px; color-scheme: dark; }
 .note { font-size: 11.5px; color: var(--muted); margin: 10px 0 0; line-height: 1.5; }
 
 /* maskot */
-.cat { display: block; width: 100%; height: auto; overflow: visible; }
-.cat .head, .cat .ear { fill: #0e0d14; stroke: rgba(255, 155, 187, 0.62); stroke-width: 1.5; stroke-linejoin: round; }
-.cat .inn { fill: rgba(255, 155, 187, 0.38); }
-.cat .earL, .cat .earR { transition: transform 0.26s cubic-bezier(0.3, 0.8, 0.3, 1); }
-.cat .earL { transform-origin: 13px 14px; }
-.cat .earR { transform-origin: 35px 14px; }
-.cat .face { animation: faceIn 0.24s ease-out both; }
-.cat .face.out { animation: faceOut 0.24s ease-in both; pointer-events: none; }
-@keyframes faceIn { from { opacity: 0; transform: scale(0.96); transform-origin: 24px 24px; } to { opacity: 1; transform: none; } }
-@keyframes faceOut { from { opacity: 1; } to { opacity: 0; } }
-@media (prefers-reduced-motion: reduce) { .cat .face, .cat .face.out, .cat .earL, .cat .earR { animation: none; transition: none; } }
-.cat .eye { fill: var(--sakura); filter: drop-shadow(0 0 2.5px var(--sakura)); transform-box: fill-box; transform-origin: center; animation: blink 5.5s infinite; }
-.cat .ln { fill: none; stroke: var(--sakura); stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; filter: drop-shadow(0 0 2px var(--sakura)); }
-.cat .thin { fill: none; stroke: var(--sakura); stroke-width: 1.1; stroke-linecap: round; }
-.cat .wh { fill: none; stroke: rgba(255, 255, 255, 0.3); stroke-width: 1; stroke-linecap: round; }
-.cat .nose, .cat .fx { fill: var(--sakura); }
-.cat .z { font: 700 9px var(--font); fill: var(--sakura); animation: zz 2.4s infinite; }
-.cat .band { fill: none; stroke: var(--paper); stroke-width: 2.2; stroke-linecap: round; }
-.cat .cup { fill: var(--sakura); }
-.cat .drop { fill: #9fd8ff; }
-.cat.s-music .head, .cat.s-music .ear { animation: bob 1s infinite; }
 
 @keyframes pop { from { opacity: 0; transform: scale(0.55, 0.4); } to { opacity: 1; transform: none; } }
-@keyframes blink { 0%, 92%, 100% { transform: scaleY(1); } 95% { transform: scaleY(0.08); } }
 @keyframes pulse { 50% { opacity: 0.35; } }
 @keyframes eq { 0%, 100% { height: 3px; } 50% { height: 12px; } }
-@keyframes zz { 0% { opacity: 0; transform: translate(0, 3px); } 40% { opacity: 1; } 100% { opacity: 0; transform: translate(3px, -5px); } }
-@keyframes bob { 50% { transform: translateY(-1.5px) rotate(-3deg); } }
 @media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }
 
 /* pill memanjang: baterai kiri, neko di tengah, jam kanan */

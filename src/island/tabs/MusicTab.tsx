@@ -31,7 +31,7 @@ const SPK_MUTE = 'M4 9v6h4l5 4V5L8 9zM16.5 9.5l4 5M20.5 9.5l-4 5';
 const SEND_MS = 70;
 
 /** Penggeser volume. Selama digeser, nilai lokal ditampilkan agar tidak melompat oleh pembacaan sistem. */
-function VolumeRow({ volume, onVolume }: { volume: number | null; onVolume: (p: number) => void }) {
+function VolumeRow({ volume, onVolume, inline = false }: { volume: number | null; onVolume: (p: number) => void; inline?: boolean }) {
   const [draft, setDraft] = useState<number | null>(null);
   const timer = useRef<number | null>(null);
   const last = useRef(0);
@@ -44,6 +44,7 @@ function VolumeRow({ volume, onVolume }: { volume: number | null; onVolume: (p: 
   );
 
   if (volume === null) {
+    if (inline) return null;
     return <p className="note">Volume sistem tidak terbaca di perangkat ini.</p>;
   }
   const shown = draft ?? volume;
@@ -68,7 +69,7 @@ function VolumeRow({ volume, onVolume }: { volume: number | null; onVolume: (p: 
   };
 
   return (
-    <div className="vol">
+    <div className={inline ? 'vol inline' : 'vol'}>
       <button
         className="volbtn"
         aria-label={shown === 0 ? 'Suarakan' : 'Bisukan'}
@@ -143,8 +144,9 @@ export function MusicTab({ now, media, mediaAt, onControl, simulated, volume, on
         <button onClick={() => onControl('next')} aria-label="Berikutnya">
           <Icon d={NEXT} />
         </button>
+        <VolumeRow volume={volume} onVolume={onVolume} inline />
       </div>
-      <VolumeRow volume={volume} onVolume={onVolume} />
+      {volume === null && <p className="note">Volume sistem tidak terbaca di perangkat ini.</p>}
       <LyricsBlock title={media.title} artist={media.artist} durationSec={media.durationSec} pos={pos} />
       {simulated && <p className="note">Data simulasi. Di aplikasi Windows, ini dibaca dari pemutar yang aktif.</p>}
     </>
