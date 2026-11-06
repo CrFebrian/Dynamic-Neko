@@ -96,7 +96,7 @@ export function lofiLength(track: LofiTrack, sampleRate: number): number {
   return Math.round(((BARS * 4 * 60) / track.bpm) * sampleRate);
 }
 
-export function renderLofi(id: LofiId, sampleRate = 22050): Float32Array {
+export function renderLofi(id: LofiId, sampleRate = 22050): Float32Array<ArrayBuffer> {
   const track = LOFI_TRACKS.find((t) => t.id === id);
   if (!track) throw new Error(`Lagu tidak dikenal: ${String(id)}`);
   const n = lofiLength(track, sampleRate);

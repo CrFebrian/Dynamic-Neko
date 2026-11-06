@@ -78,7 +78,7 @@ class AmbientEngine {
       await new Promise<void>((r) => window.setTimeout(r, 30));
       const data = renderLofi(kind, LOFI_RATE);
       const buf = ctx.createBuffer(1, data.length, LOFI_RATE);
-      buf.copyToChannel(data, 0);
+      buf.getChannelData(0).set(data);
       return buf;
     }
     throw new Error(`Suara latar tidak dikenal: ${kind}`);
