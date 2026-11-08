@@ -53,7 +53,9 @@ pemakaiannya dibatasi seperti berikut.
    Task, buku, dan pengaturan disimpan lokal di perangkat Anda. Perangkat Lunak
    menghubungi layanan pihak ketiga hanya untuk fitur yang Anda pakai: AniList
    (anime), MangaDex (manga), LRCLIB (lirik, bila dinyalakan), dan GitHub
-   (cek versi baru, bila dinyalakan). Tidak ada telemetri. Perubahan di masa
+   (cek versi baru, bila dinyalakan). Tidak ada telemetri. Yomi Island mendaftarkan dirinya agar terbuka saat Windows
+   dinyalakan (entri Run di akun Anda sendiri); Anda bisa mematikannya kapan saja di
+   Pengaturan Windows > Aplikasi > Startup. Perubahan di masa
    depan akan dicatat di README dan lisensi ini.
 
 8. Tanpa jaminan

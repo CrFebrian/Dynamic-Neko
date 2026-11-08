@@ -1,7 +1,8 @@
-//! "Jalankan saat Windows mulai": satu nilai di `HKCU\Software\Microsoft\Windows\CurrentVersion\Run`.
+//! "Jalankan saat Windows mulai" (otomatis, tanpa pengaturan): satu nilai di `HKCU\Software\Microsoft\Windows\CurrentVersion\Run`.
 //! Hanya menyentuh nilai milik Yomi Island di hive pengguna saat ini; tidak butuh hak administrator.
 
 use crate::util;
+use std::{fs, path::Path};
 
 const VALUE_NAME: &str = "Yomi Island";
 
@@ -64,26 +65,30 @@ fn own_command() -> Result<String, String> {
     util::autostart_command(exe.to_str().ok_or("lokasi aplikasi bukan teks yang valid")?)
 }
 
-pub fn is_enabled() -> Result<bool, String> {
-    Ok(imp::current()?.is_some())
-}
-
-pub fn set_enabled(enabled: bool) -> Result<(), String> {
-    if !enabled {
-        return imp::set(None);
-    }
-    // Versi dev berjalan dari target\debug dan butuh server Vite; mendaftarkannya ke startup hanya
-    // menghasilkan aplikasi yang gagal terbuka saat Windows mulai.
-    if cfg!(debug_assertions) {
-        return Err("hanya tersedia di versi yang dipasang (bukan mode dev)".into());
-    }
+fn enable() -> Result<(), String> {
     imp::set(Some(&own_command()?))
 }
 
-/// Bila sudah aktif tetapi menunjuk lokasi lama (setelah pasang ulang atau pindah folder), arahkan ke exe ini.
-/// Dilewati di mode dev supaya `tauri dev` tidak membelokkan entri milik versi terpasang.
-pub fn refresh() {
+/// Dipanggil tiap aplikasi terpasang dibuka. Pertama kali: daftarkan ke startup Windows (itu default
+/// aplikasi ini) dan catat penanda di `marker_dir`. Setelah itu hanya merapikan entri yang sudah ada
+/// bila menunjuk lokasi lama (pasang ulang di folder lain). Entri yang dihapus atau dinonaktifkan
+/// pengguna di Pengaturan Windows tidak pernah dipasang ulang.
+/// Dilewati di mode dev: versi dev berjalan dari target\debug dan butuh server Vite.
+pub fn init_default(marker_dir: &Path) {
     if cfg!(debug_assertions) {
+        return;
+    }
+    let marker = marker_dir.join("autostart-initialized");
+    if !marker.exists() {
+        match enable() {
+            Ok(()) => {
+                if let Err(e) = fs::write(&marker, b"1") {
+                    eprintln!("gagal menulis penanda startup: {e}");
+                }
+            }
+            // Tanpa penanda, percobaan diulang saat aplikasi dibuka berikutnya.
+            Err(e) => eprintln!("gagal mendaftarkan startup: {e}"),
+        }
         return;
     }
     let (Ok(Some(current)), Ok(wanted)) = (imp::current(), own_command()) else {

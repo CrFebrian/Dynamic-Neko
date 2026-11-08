@@ -172,10 +172,10 @@ Daftar uji di laptop Windows:
 
 Situs statis ada di `docs/` (HTML, CSS, JS biasa; tanpa build). Aktifkan: repo Settings > Pages > Source "Deploy from a branch" > Branch `main`, folder `/docs`. Alamatnya `https://crfebrian.github.io/Dynamic-Neko/`. Gratis untuk repo publik; repo privat butuh GitHub Pro. Tombol Unduh mengarah ke `releases/latest`, jadi tidak perlu diubah tiap rilis. Font diambil dari Google Fonts; contoh island di hero memakai data karangan, tanpa permintaan jaringan.
 
-## Jalankan saat Windows mulai
+## Jalankan saat Windows mulai (otomatis)
 
-- Pengaturan > Umum > "Saat Windows mulai": switch menulis atau menghapus satu nilai `Yomi Island` di `HKCU\Software\Microsoft\Windows\CurrentVersion\Run` (jalur exe dalam tanda kutip). Tanpa plugin baru dan tanpa hak administrator; kode di `src-tauri/src/autostart.rs`.
-- Hanya bekerja di versi yang dipasang. Di mode dev (`tauri dev`) switch menampilkan "hanya tersedia di versi yang dipasang", dan entri milik versi terpasang tidak diubah.
-- Saat aplikasi terpasang dibuka, entri yang menunjuk lokasi lama (pasang ulang di folder lain) diperbarui otomatis.
-- Uji: pasang installer, nyalakan switch, cek `Settings > Apps > Startup` (Windows) atau Task Manager > Startup apps, restart/keluar-masuk akun, island harus muncul sendiri. Matikan switch lalu pastikan entri hilang. Bila pengguna menonaktifkan lewat Task Manager, switch tetap tampil menyala karena entri registry masih ada (Windows menyimpan status itu terpisah di StartupApproved).
-- Copot pemasangan: entri Run bisa tertinggal bila uninstaller tidak membersihkannya; periksa setelah uji uninstall dan beri tahu saya bila tertinggal.
+- Tanpa pengaturan di aplikasi: saat versi terpasang dibuka **pertama kali**, `src-tauri/src/autostart.rs` menulis satu nilai `Yomi Island` ke `HKCU\Software\Microsoft\Windows\CurrentVersion\Run` (jalur exe dalam tanda kutip, divalidasi di `util.rs`) dan membuat penanda `autostart-initialized` di folder data aplikasi. Tanpa hak administrator, hanya akun ini.
+- Setelah itu hanya merapikan jalur bila entri menunjuk lokasi lama. Entri yang dihapus atau dinonaktifkan pengguna (Pengaturan Windows > Aplikasi > Startup, atau Task Manager) **tidak pernah dipasang ulang**. Bila pendaftaran gagal, penanda tidak dibuat sehingga dicoba lagi pada pembukaan berikutnya.
+- Tombol Keluar hanya menutup sesi ini; aplikasi terbuka lagi saat Windows dinyalakan berikutnya. Hint-nya di Pengaturan menjelaskan cara mematikan permanen.
+- Mode dev (`tauri dev`) tidak mendaftarkan apa pun.
+- Uji: pasang installer, buka sekali, cek Pengaturan Windows > Aplikasi > Startup (harus ada), restart/keluar-masuk akun (island muncul sendiri). Matikan di Startup, buka lagi aplikasinya, restart: tidak boleh muncul. Uji juga copot pemasangan dan lihat apakah entri Run tertinggal (beri tahu bila iya).

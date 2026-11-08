@@ -34,6 +34,7 @@ Tautan di atas membuka halaman rilis GitHub. Ambil berkas **`…-setup.exe`** te
 1. Unduh berkas `…-setup.exe` dari halaman rilis.
 2. Jalankan berkas tersebut. Jika Windows menampilkan **"Windows protected your PC"**, pilih **Informasi lebih lanjut**, lalu **Tetap jalankan**.
 3. Setelah selesai, pill kecil muncul di tengah tepi atas layar. Klik untuk membuka panelnya.
+4. Yomi Island **terbuka sendiri setiap Windows dinyalakan**. Tombol **Keluar** di Pengaturan hanya menutupnya untuk sesi itu. Untuk menghentikan selamanya, matikan di Pengaturan Windows → Aplikasi → Startup, atau copot pemasangan.
 
 **Syarat:** Windows 10 atau 11 (64-bit).
 Peringatan SmartScreen itu wajar, karena installer belum bertanda tangan digital. Unduh hanya dari halaman rilis resmi di atas.
@@ -73,7 +74,7 @@ Semua data **tersimpan di laptopmu**, tanpa akun dan tanpa telemetri. Gratis unt
 | 🌸 | **Santai** | **Istirahat mata 20-20-20**, kutipan harian, penanda saat layar direkam, pengingat **reset harian game**, dan **suara latar lo-fi** |
 | 🎙️ | **Mode rapat** | Saat mikrofon dipakai, pengingat dan bunyi ditahan dan pill menjadi indikator rapat |
 | 🎬 | **Mode nonton** | Saat ada video atau game layar penuh, island bersembunyi dan pengingat ditahan |
-| ⚙️ | **Pengaturan** | Jendela sendiri dengan pencarian: tema gelap/terang/ikut sistem, gaya island, isi pill, tutup otomatis, notifikasi per fitur, dan **Jalankan saat Windows mulai** |
+| ⚙️ | **Pengaturan** | Jendela sendiri dengan pencarian: tema gelap/terang/ikut sistem, gaya island, isi pill, tutup otomatis, dan notifikasi per fitur |
 | 🔔 | **Pembaruan** | Memberi tahu lewat pill bila ada versi baru di GitHub Releases (paling sering 12 jam sekali, bisa dimatikan) |
 | 🧭 | **Tur pengenalan** | Penjelasan singkat letak fitur saat pertama dipakai, bisa diulang dari Pengaturan |
 

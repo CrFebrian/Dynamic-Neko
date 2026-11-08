@@ -5,7 +5,6 @@ import { CAT_ICON } from './icons.tsx';
 import { CATS, entry, GROUPS, catLabel, searchSettings, type Cat } from './catalog.ts';
 import { notifySettingsChanged, onSettingsChanged, requestTour } from '../lib/bus.ts';
 import { APP_VERSION } from '../lib/version.ts';
-import { getAutostart, setAutostart } from '../lib/autostart.ts';
 import { checkForUpdate, loadUpdateInfo } from '../features/update/updateCheck.ts';
 import { isNewer, RELEASES_PAGE, statusText, type UpdateInfo } from '../features/update/update.ts';
 import { DEFAULT_SETTINGS, EYE_OPTIONS, GOAL_MAX, GOAL_MIN, loadSettings, saveSetting, type SettingKey, type Settings } from '../lib/settings.ts';
@@ -80,27 +79,6 @@ export function SettingsApp() {
   const [upd, setUpd] = useState<UpdateInfo | null>(null);
   const [checking, setChecking] = useState(false);
   const [updErr, setUpdErr] = useState<string | null>(null);
-  const [autoStart, setAutoStart] = useState<boolean | null>(null);
-
-  useEffect(() => {
-    let alive = true;
-    getAutostart()
-      .then((v) => alive && setAutoStart(v))
-      .catch((e: unknown) => console.error('Gagal membaca pengaturan startup:', e));
-    return () => {
-      alive = false;
-    };
-  }, []);
-
-  const toggleAutostart = (on: boolean) => {
-    setMsg(null);
-    setAutoStart(on); // langsung terlihat; dikembalikan bila gagal
-    setAutostart(on).catch((e: unknown) => {
-      setAutoStart(!on);
-      setMsg(`Gagal mengubah startup. ${e instanceof Error ? e.message : String(e)}`);
-    });
-  };
-
   useEffect(() => {
     let alive = true;
     loadUpdateInfo(getStore())
@@ -222,14 +200,6 @@ export function SettingsApp() {
                   <Switch on={cfg.autoClose} onChange={(v) => update('autoClose', v)} label={T('autoClose')} hint={H('autoClose')} />
                 </Card>
                 <p className="note">Geser island ke kiri atau kanan dengan menyeret pill atau bagian atas panel. Posisi tersimpan.</p>
-                {autoStart !== null && (
-                  <>
-                    <h2>Saat Windows mulai</h2>
-                    <Card>
-                      <Switch on={autoStart} onChange={toggleAutostart} label={T('autostart')} hint={H('autostart')} />
-                    </Card>
-                  </>
-                )}
                 <h2>Tur pengenalan</h2>
                 <Card>
                   <Row title={T('tourDone')} hint={H('tourDone')}>

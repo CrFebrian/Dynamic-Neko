@@ -56,18 +56,6 @@ fn open_data_dir(app: tauri::AppHandle) -> Result<(), String> {
     applog::open_target(applog::dir(&app)?.as_os_str())
 }
 
-/// Apakah Yomi Island terdaftar untuk jalan saat Windows mulai.
-#[tauri::command]
-fn get_autostart() -> Result<bool, String> {
-    autostart::is_enabled()
-}
-
-/// Nyalakan atau matikan "Jalankan saat Windows mulai".
-#[tauri::command]
-fn set_autostart(enabled: bool) -> Result<(), String> {
-    autostart::set_enabled(enabled)
-}
-
 /// Buka tautan di browser. Hanya URL di daftar putih (form laporan GitHub dan Saweria).
 #[tauri::command]
 fn open_url(url: String) -> Result<(), String> {
@@ -110,9 +98,11 @@ pub fn run() {
     tauri::Builder::default()
         .plugin(tauri_plugin_sql::Builder::default().build())
         .plugin(tauri_plugin_http::init())
-        .invoke_handler(tauri::generate_handler![system_snapshot, media_control, set_volume, open_settings, quit_app, log_error, read_error_log, open_data_dir, open_url, get_autostart, set_autostart])
+        .invoke_handler(tauri::generate_handler![system_snapshot, media_control, set_volume, open_settings, quit_app, log_error, read_error_log, open_data_dir, open_url])
         .setup(|app| {
-            autostart::refresh();
+            if let Ok(dir) = applog::dir(app.handle()) {
+                autostart::init_default(&dir);
+            }
             let toggle = MenuItem::with_id(app, "toggle", "Tampilkan / sembunyikan island", true, None::<&str>)?;
             let settings = MenuItem::with_id(app, "settings", "Pengaturan", true, None::<&str>)?;
             let quit = MenuItem::with_id(app, "quit", "Keluar", true, None::<&str>)?;
