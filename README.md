@@ -73,7 +73,7 @@ Semua data **tersimpan di laptopmu**, tanpa akun dan tanpa telemetri. Gratis unt
 | 🌸 | **Santai** | **Istirahat mata 20-20-20**, kutipan harian, penanda saat layar direkam, pengingat **reset harian game**, dan **suara latar lo-fi** |
 | 🎙️ | **Mode rapat** | Saat mikrofon dipakai, pengingat dan bunyi ditahan dan pill menjadi indikator rapat |
 | 🎬 | **Mode nonton** | Saat ada video atau game layar penuh, island bersembunyi dan pengingat ditahan |
-| ⚙️ | **Pengaturan** | Jendela sendiri dengan pencarian: tema gelap/terang/ikut sistem, gaya island, isi pill, tutup otomatis, dan notifikasi per fitur |
+| ⚙️ | **Pengaturan** | Jendela sendiri dengan pencarian: tema gelap/terang/ikut sistem, gaya island, isi pill, tutup otomatis, notifikasi per fitur, dan **Jalankan saat Windows mulai** |
 | 🔔 | **Pembaruan** | Memberi tahu lewat pill bila ada versi baru di GitHub Releases (paling sering 12 jam sekali, bisa dimatikan) |
 | 🧭 | **Tur pengenalan** | Penjelasan singkat letak fitur saat pertama dipakai, bisa diulang dari Pengaturan |
 

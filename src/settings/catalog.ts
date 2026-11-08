@@ -48,6 +48,7 @@ export interface Entry {
 
 const list: Entry[] = [
   { id: 'autoClose', cat: 'umum', title: 'Tutup otomatis saat kursor keluar', hint: 'Panel kembali jadi pill kecil sesaat setelah kursor meninggalkannya, tanpa menekan ×. Tidak menutup saat kamu sedang mengetik.', keywords: 'hover mouse pill collapse' },
+  { id: 'autostart', cat: 'umum', title: 'Jalankan saat Windows mulai', hint: 'Yomi Island terbuka sendiri setelah kamu masuk ke Windows. Hanya untuk akun ini, tanpa hak administrator. Bisa dimatikan di sini atau di Pengaturan Windows > Aplikasi > Startup.', keywords: 'startup autostart boot login otomatis nyala sendiri' },
   { id: 'tourDone', cat: 'umum', title: 'Tur pengenalan', hint: 'Penjelasan singkat letak fitur di island. Tampil otomatis sekali saat pertama dipakai.', keywords: 'tutorial panduan bantuan intro mulai' },
   { id: 'updateCheck', cat: 'umum', title: 'Beri tahu saat ada versi baru', hint: 'Memeriksa GitHub Releases paling sering 12 jam sekali. Hanya mengirim permintaan biasa; tidak ada data pribadi yang dikirim.', keywords: 'update pembaruan versi rilis release unduh' },
   { id: 'quit', cat: 'umum', title: 'Keluar dari Yomi Island', hint: 'Island ditutup. Buka lagi dari menu Start.', keywords: 'quit exit tutup aplikasi' },
