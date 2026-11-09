@@ -58,3 +58,13 @@ html.sv, html.sv body, html.sv #root { background: var(--win-bg); overflow: hidd
 
 .upd-actions { display: flex; gap: 8px; }
 .btn:disabled { opacity: 0.45; cursor: default; }
+
+/* pratinjau ukuran pill di Pengaturan > Tampilan */
+.pillprev { display: grid; grid-template-columns: 1fr; gap: 8px; padding: 14px 0; }
+.pillprev .pp { display: flex; flex-direction: row; align-items: center; justify-content: space-between; gap: 12px; padding: 10px 16px; border-radius: 12px; border: 1px solid var(--line-soft); }
+.pillprev .pp:hover { background: var(--fill-soft); }
+.pillprev .pp[aria-pressed='true'] { border-color: var(--sakura-line); background: var(--sakura-soft); }
+.pillprev .pp-stage { display: flex; align-items: center; justify-content: center; min-height: 56px; flex: 1; overflow: hidden; }
+.pillprev .pp small { order: -1; width: 74px; text-align: left; }
+.pillprev .pp small { color: var(--muted); font-size: 12px; }
+.pillprev .pill { animation: none; cursor: inherit; }

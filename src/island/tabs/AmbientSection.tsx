@@ -1,6 +1,6 @@
 import { useState, useSyncExternalStore } from 'react';
 import { ambient, type AmbientKind } from '../../features/ambient/ambient.ts';
-import { ALL_TRACKS, trackInfo } from '../../features/ambient/tracks.ts';
+import { SLOTS, slot } from '../../features/ambient/tracks.ts';
 
 export function AmbientSection() {
   const kind = useSyncExternalStore(ambient.subscribe, () => ambient.kind);
@@ -17,20 +17,21 @@ export function AmbientSection() {
     ambient.play(k).catch((e: unknown) => setErr(e instanceof Error ? e.message : 'Audio tidak bisa dimulai.'));
   };
 
-  const now = kind ? trackInfo(kind) : undefined;
+  const current = useSyncExternalStore(ambient.subscribe, () => ambient.current);
+  const now = kind ? slot(kind) : undefined;
   const status = err
     ? err
     : loading
       ? 'Menyiapkan musik…'
       : now
-        ? `Memutar ${now.label}${now.artist ? ` — ${now.artist}` : ''}. Tekan lagi untuk berhenti; musik tetap jalan saat panel ditutup.`
+        ? `${now.label}: ${current ? `${current.title}${current.artist ? ` — ${current.artist}` : ''}` : 'memutar'}. Tekan lagi untuk berhenti; musik tetap jalan saat panel ditutup.`
         : 'Pilih musik lo-fi untuk menemani.';
 
   return (
     <>
       <div className="sec">Suara latar</div>
       <div className="chips">
-        {ALL_TRACKS.map((t) => (
+        {SLOTS.map((t) => (
           <button key={t.id} className="chip" aria-pressed={kind === t.id} onClick={() => pick(t.id)}>
             {t.label}
           </button>

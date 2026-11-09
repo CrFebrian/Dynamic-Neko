@@ -72,6 +72,7 @@ button:focus-visible, input:focus-visible, .pill:focus-visible { outline: 2px so
   padding: 0 12px 0 5px; background: var(--island); border-radius: 999px; white-space: nowrap; cursor: pointer;
   font-size: 12px; border: 1px solid var(--line); touch-action: none;
 }
+.pill { zoom: var(--ps, 1); }
 .pill:hover { border-color: var(--sakura-line); }
 .notch .pill { border-radius: 0 0 22px 22px; border-top: 0; }
 .pill .mini { width: 26px; flex: none; display: block; }

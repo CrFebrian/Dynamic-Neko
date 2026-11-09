@@ -8,12 +8,13 @@ use windows::Media::Control::{
     GlobalSystemMediaTransportControlsSessionPlaybackStatus as PlaybackStatus,
 };
 use std::cell::Cell;
+use windows::Storage::Streams::DataReader;
 use windows::Win32::Media::Audio::Endpoints::IAudioEndpointVolume;
 use windows::Win32::Media::Audio::{eMultimedia, eRender, IMMDeviceEnumerator, MMDeviceEnumerator};
 use windows::Win32::System::Com::{CoCreateInstance, CoInitializeEx, CLSCTX_ALL, COINIT_MULTITHREADED};
 use windows::Win32::System::Power::{GetSystemPowerStatus, SYSTEM_POWER_STATUS};
 use windows::Win32::UI::Shell::{
-    SHQueryUserNotificationState, QUNS_BUSY, QUNS_PRESENTATION_MODE, QUNS_RUNNING_D3D_FULL_SCREEN,
+    SHQueryUserNotificationState, QUNS_PRESENTATION_MODE, QUNS_RUNNING_D3D_FULL_SCREEN,
 };
 use winreg::{enums::HKEY_CURRENT_USER, RegKey};
 
@@ -72,11 +73,13 @@ fn battery() -> Option<Battery> {
     })
 }
 
-/// Ada aplikasi layar penuh (video, game) atau mode presentasi.
+/// Ada game/video layar penuh eksklusif atau mode presentasi.
+/// QUNS_BUSY sengaja tidak dipakai: ia juga aktif untuk jendela biasa (mis. peramban maksimal),
+/// sehingga pill ikut tersembunyi padahal tidak ada yang layar penuh.
 fn fullscreen() -> bool {
     match unsafe { SHQueryUserNotificationState() } {
         Ok(state) => {
-            state == QUNS_BUSY || state == QUNS_RUNNING_D3D_FULL_SCREEN || state == QUNS_PRESENTATION_MODE
+            state == QUNS_RUNNING_D3D_FULL_SCREEN || state == QUNS_PRESENTATION_MODE
         }
         Err(_) => false,
     }
@@ -148,6 +151,34 @@ fn media() -> windows::core::Result<Option<MediaInfo>> {
         position_sec: position,
         duration_sec: duration,
     }))
+}
+
+/// Batas ukuran sampul yang dikirim ke antarmuka (data URL).
+const ART_MAX_BYTES: usize = 1_500_000;
+
+/// Sampul album dari pemutar media aktif sebagai data URL. None bila pemutar tidak menyediakan.
+pub fn media_art() -> Result<Option<String>, String> {
+    let run = || -> windows::core::Result<Option<String>> {
+        let manager = SessionManager::RequestAsync()?.get()?;
+        let Ok(session) = manager.GetCurrentSession() else {
+            return Ok(None);
+        };
+        let props = session.TryGetMediaPropertiesAsync()?.get()?;
+        let Ok(thumb) = props.Thumbnail() else {
+            return Ok(None);
+        };
+        let stream = thumb.OpenReadAsync()?.get()?;
+        let size = stream.Size()? as usize;
+        if size == 0 || size > ART_MAX_BYTES {
+            return Ok(None);
+        }
+        let reader = DataReader::CreateDataReader(&stream.GetInputStreamAt(0)?)?;
+        reader.LoadAsync(size as u32)?.get()?;
+        let mut bytes = vec![0u8; size];
+        reader.ReadBytes(&mut bytes)?;
+        Ok(crate::util::image_data_url(&bytes, ART_MAX_BYTES))
+    };
+    run().map_err(|e| e.to_string())
 }
 
 pub fn media_control(action: MediaAction) -> Result<(), String> {

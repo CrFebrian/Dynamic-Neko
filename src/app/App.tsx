@@ -58,7 +58,8 @@ import {
   type SystemSnapshot,
 } from '../lib/system.ts';
 import { useWindowDrag } from './useWindowDrag.ts';
-import { layoutWindow, openSettings, setWindowVisible } from './window.ts';
+import { pillScale } from '../island/pillSize.ts';
+import { ensureVisible, layoutWindow, openSettings, setPillSize, setWindowVisible } from './window.ts';
 
 /** Harus sama dengan durasi animasi .panel.closing di tabs.css. */
 const CLOSE_MS = 220;
@@ -350,6 +351,23 @@ export function App() {
       layoutWindow('collapsed', fracRef.current).catch(logErr('Gagal menampilkan jendela:'));
     }
   }, [hiddenByWatch, cancelCloseTimer]);
+
+  // Ukuran pill: skala CSS + ukuran jendela saat tertutup.
+  useEffect(() => {
+    document.documentElement.style.setProperty('--ps', String(pillScale(cfg.pillSize)));
+    setPillSize(cfg.pillSize);
+    if (!expandedRef.current && !hiddenRef.current) {
+      layoutWindow('collapsed', fracRef.current).catch(logErr('Gagal mengatur ukuran pill:'));
+    }
+  }, [cfg.pillSize]);
+
+  // Penjaga: pill harus selalu tampil. Bila jendela sempat tersembunyi tanpa alasan, tampilkan lagi.
+  useEffect(() => {
+    const id = window.setInterval(() => {
+      if (!hiddenRef.current) ensureVisible().catch(logErr('Gagal menampilkan jendela:'));
+    }, 5000);
+    return () => window.clearInterval(id);
+  }, []);
 
   const handleTimerDone = useCallback(
     (tm: TimerState) => {

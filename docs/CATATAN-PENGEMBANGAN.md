@@ -179,3 +179,9 @@ Situs statis ada di `docs/` (HTML, CSS, JS biasa; tanpa build). Aktifkan: repo S
 - Tombol Keluar hanya menutup sesi ini; aplikasi terbuka lagi saat Windows dinyalakan berikutnya. Hint-nya di Pengaturan menjelaskan cara mematikan permanen.
 - Mode dev (`tauri dev`) tidak mendaftarkan apa pun.
 - Uji: pasang installer, buka sekali, cek Pengaturan Windows > Aplikasi > Startup (harus ada), restart/keluar-masuk akun (island muncul sendiri). Matikan di Startup, buka lagi aplikasinya, restart: tidak boleh muncul. Uji juga copot pemasangan dan lihat apakah entri Run tertinggal (beri tahu bila iya).
+
+## Revisi: pill selalu tampil, ukuran pill, sampul album, lo-fi dari file
+
+- **Pill selalu tampil**: deteksi layar penuh tidak lagi memakai status `QUNS_BUSY` (ikut aktif untuk jendela biasa, jadi pill ikut tersembunyi). Kini hanya game/video layar penuh eksklusif dan mode presentasi. Ditambah penjaga 5 detik yang menampilkan jendela lagi bila tersembunyi tanpa alasan. Uji: buka peramban maksimal/tab apa pun, pill harus tetap terlihat; putar video layar penuh (F11 di YouTube, atau game), pill bersembunyi lalu muncul lagi setelah keluar.
+- **Ukuran pill**: Pengaturan > Tampilan > Ukuran pill (Kecil = bawaan, Menengah, Sedang) dengan pratinjau ukuran sebenarnya. Uji: ganti ukuran, pill langsung berubah, posisi tetap di tengah tepi atas, panel tetap terbuka normal.
+- **Suara latar**: tetap tiga pilihan Lo-fi malam, hujan, kafe, kini memutar lagu file: malam = An Ode To, hujan = Tuesday at Three, kafe = Chill Day lalu Me 2 (berurutan, mengulang). Pemetaan ada di `SLOTS` di `src/features/ambient/tracks.ts`. Generator musik sintetis dihapus.

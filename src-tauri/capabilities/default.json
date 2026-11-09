@@ -12,6 +12,7 @@
     "core:window:allow-outer-size",
     "core:window:allow-show",
     "core:window:allow-hide",
+    "core:window:allow-is-visible",
     "core:window:allow-close",
     "core:window:allow-current-monitor",
     "core:window:allow-primary-monitor",

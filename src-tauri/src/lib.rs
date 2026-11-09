@@ -94,11 +94,19 @@ async fn media_control(action: String) -> Result<(), String> {
         .map_err(|e| e.to_string())?
 }
 
+/// Sampul album dari pemutar aktif; null bila tidak tersedia.
+#[tauri::command]
+async fn media_art() -> Result<Option<String>, String> {
+    tauri::async_runtime::spawn_blocking(system::media_art)
+        .await
+        .map_err(|e| e.to_string())?
+}
+
 pub fn run() {
     tauri::Builder::default()
         .plugin(tauri_plugin_sql::Builder::default().build())
         .plugin(tauri_plugin_http::init())
-        .invoke_handler(tauri::generate_handler![system_snapshot, media_control, set_volume, open_settings, quit_app, log_error, read_error_log, open_data_dir, open_url])
+        .invoke_handler(tauri::generate_handler![system_snapshot, media_control, media_art, set_volume, open_settings, quit_app, log_error, read_error_log, open_data_dir, open_url])
         .setup(|app| {
             if let Ok(dir) = applog::dir(app.handle()) {
                 autostart::init_default(&dir);

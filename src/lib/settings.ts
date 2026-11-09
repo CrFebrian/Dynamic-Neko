@@ -1,10 +1,13 @@
 import type { IslandStyle } from '../island/types.ts';
 import type { ThemePref } from './theme.ts';
+import { isPillSize, type PillSize } from '../island/pillSize.ts';
 
 /** Semua pengaturan yang bisa diubah pengguna. Disimpan sebagai teks di tabel pengaturan. */
 export interface Settings {
   style: IslandStyle;
   theme: ThemePref;
+  /** Ukuran pill saat island tertutup. */
+  pillSize: PillSize;
   /** Panel menutup sendiri saat kursor keluar. */
   autoClose: boolean;
   beep: boolean;
@@ -31,6 +34,7 @@ export type SettingKey = keyof Settings;
 export const DEFAULT_SETTINGS: Readonly<Settings> = {
   style: 'dynamic',
   theme: 'dark',
+  pillSize: 'small',
   autoClose: true,
   beep: true,
   meetingMode: true,
@@ -70,6 +74,9 @@ export function parseSetting<K extends SettingKey>(key: K, raw: string | null): 
       break;
     case 'theme':
       v = raw === 'dark' || raw === 'light' || raw === 'system' ? raw : d.theme;
+      break;
+    case 'pillSize':
+      v = isPillSize(raw) ? raw : d.pillSize;
       break;
     case 'mangaLang':
       v = raw === 'id' || raw === 'en' ? raw : d.mangaLang;

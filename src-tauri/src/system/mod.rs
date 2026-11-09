@@ -120,3 +120,8 @@ mod tests {
         assert!(json.contains("\"volume\":40"));
     }
 }
+
+/// Sampul album pemutar aktif (data URL), atau None bila tidak ada.
+pub fn media_art() -> Result<Option<String>, String> {
+    platform::media_art()
+}

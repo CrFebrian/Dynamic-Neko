@@ -95,8 +95,62 @@ pub fn tail_chars(s: &str, max: usize) -> String {
     s.chars().skip(n - max).collect()
 }
 
+/// Kode base64 standar (RFC 4648, dengan padding).
+pub fn base64_encode(data: &[u8]) -> String {
+    const T: &[u8; 64] = b"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+    let mut out = String::with_capacity((data.len() + 2) / 3 * 4);
+    for c in data.chunks(3) {
+        let n = (u32::from(c[0]) << 16) | (u32::from(*c.get(1).unwrap_or(&0)) << 8) | u32::from(*c.get(2).unwrap_or(&0));
+        out.push(T[(n >> 18) as usize & 63] as char);
+        out.push(T[(n >> 12) as usize & 63] as char);
+        out.push(if c.len() > 1 { T[(n >> 6) as usize & 63] as char } else { '=' });
+        out.push(if c.len() > 2 { T[n as usize & 63] as char } else { '=' });
+    }
+    out
+}
+
+/// Jenis gambar dari byte awal (PNG, JPEG, GIF, BMP, WebP). None bila bukan gambar yang dikenal.
+pub fn sniff_image_mime(b: &[u8]) -> Option<&'static str> {
+    if b.starts_with(&[0x89, b'P', b'N', b'G']) {
+        Some("image/png")
+    } else if b.starts_with(&[0xFF, 0xD8, 0xFF]) {
+        Some("image/jpeg")
+    } else if b.starts_with(b"GIF8") {
+        Some("image/gif")
+    } else if b.starts_with(b"BM") {
+        Some("image/bmp")
+    } else if b.len() >= 12 && &b[0..4] == b"RIFF" && &b[8..12] == b"WEBP" {
+        Some("image/webp")
+    } else {
+        None
+    }
+}
+
+/// Gambar sampul menjadi data URL. Ditolak bila kosong, bukan gambar, atau lebih dari `max` byte.
+pub fn image_data_url(bytes: &[u8], max: usize) -> Option<String> {
+    if bytes.is_empty() || bytes.len() > max {
+        return None;
+    }
+    let mime = sniff_image_mime(bytes)?;
+    Some(format!("data:{mime};base64,{}", base64_encode(bytes)))
+}
+
 #[cfg(test)]
 mod tests {
+    #[test]
+    fn base64_dan_data_url_gambar() {
+        assert_eq!(base64_encode(b""), "");
+        assert_eq!(base64_encode(b"f"), "Zg==");
+        assert_eq!(base64_encode(b"fo"), "Zm8=");
+        assert_eq!(base64_encode(b"foo"), "Zm9v");
+        assert_eq!(base64_encode(b"foobar"), "Zm9vYmFy");
+        let png = [0x89, b'P', b'N', b'G', 1, 2, 3];
+        assert!(image_data_url(&png, 100).unwrap().starts_with("data:image/png;base64,"));
+        assert!(image_data_url(&png, 3).is_none());
+        assert!(image_data_url(b"<svg>", 100).is_none());
+        assert!(image_data_url(&[], 100).is_none());
+    }
+
     #[test]
     fn perintah_autostart_dikutip_dan_ditolak_bila_berbahaya() {
         assert_eq!(

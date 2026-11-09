@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState, type ReactNode } from 'react';
+import { useCallback, useEffect, useRef, useState, type CSSProperties, type ReactNode } from 'react';
 import { quitApp } from '../app/window.ts';
 import { Neko } from '../mascot/Neko.tsx';
 import { CAT_ICON } from './icons.tsx';
@@ -12,6 +12,7 @@ import { getStore } from '../lib/store.ts';
 import { openDataDir, openExternal, readErrorLog } from '../lib/external.ts';
 import { describeOs, issueUrl, lastLines, SAWERIA_URL } from '../lib/report.ts';
 import { THEME_LABEL, THEME_PREFS } from '../lib/theme.ts';
+import { isPillSize, PILL_LABEL, PILL_SIZES, pillScale } from '../island/pillSize.ts';
 import { Switch } from '../ui/Switch.tsx';
 import { useTheme } from '../ui/useTheme.ts';
 
@@ -292,6 +293,29 @@ export function SettingsApp() {
                     ))}
                   </div>
                 </Row>
+                <Row title={T('pillSize')} hint={H('pillSize')}>
+                  <div className="seg" role="group" aria-label="Ukuran pill">
+                    {PILL_SIZES.map((z) => (
+                      <button key={z} aria-pressed={cfg.pillSize === z} onClick={() => isPillSize(z) && update('pillSize', z)}>
+                        {PILL_LABEL[z]}
+                      </button>
+                    ))}
+                  </div>
+                </Row>
+                <div className="pillprev" aria-label="Pratinjau ukuran pill">
+                  {PILL_SIZES.map((z) => (
+                    <button key={z} className="pp" aria-pressed={cfg.pillSize === z} onClick={() => update('pillSize', z)}>
+                      <span className="pp-stage">
+                        <span className="pill idle wide" style={{ '--ps': pillScale(z) } as CSSProperties}>
+                          <span className="pl"><span className="bat mono">87%</span></span>
+                          <span className="mini"><Neko state="idle" /></span>
+                          <span className="pr"><span className="clk mono">09:41</span></span>
+                        </span>
+                      </span>
+                      <small>{PILL_LABEL[z]}</small>
+                    </button>
+                  ))}
+                </div>
                 <Row title={T('style')} hint={H('style')}>
                   <div className="seg" role="group" aria-label="Gaya island">
                     <button aria-pressed={cfg.style === 'dynamic'} onClick={() => update('style', 'dynamic')}>

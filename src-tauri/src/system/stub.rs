@@ -13,3 +13,7 @@ pub fn set_volume(_scalar: f32) -> Result<(), String> {
 pub fn media_control(_action: MediaAction) -> Result<(), String> {
     Err("kontrol pemutar hanya tersedia di Windows".into())
 }
+
+pub fn media_art() -> Result<Option<String>, String> {
+    Ok(None)
+}

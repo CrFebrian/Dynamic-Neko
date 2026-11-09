@@ -87,3 +87,19 @@ export async function setVolume(percent: number): Promise<void> {
   const { invoke } = await import('@tauri-apps/api/core');
   await invoke('set_volume', { percent: p });
 }
+
+/** Hanya data URL gambar yang diterima, agar tidak ada sumber lain masuk ke <img>. */
+export const isImageDataUrl = (v: unknown): v is string => typeof v === 'string' && /^data:image\/(png|jpeg|gif|bmp|webp);base64,[A-Za-z0-9+/]+=*$/.test(v);
+
+/** Sampul album pemutar aktif, atau null (tidak ada, bukan di Tauri, atau gagal dibaca). */
+export async function fetchMediaArt(): Promise<string | null> {
+  if (!inTauri()) return null;
+  try {
+    const { invoke } = await import('@tauri-apps/api/core');
+    const v = await invoke('media_art');
+    return isImageDataUrl(v) ? v : null;
+  } catch (err) {
+    console.error('Gagal membaca sampul album:', err);
+    return null;
+  }
+}

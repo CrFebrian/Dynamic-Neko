@@ -32,11 +32,13 @@ pemakaiannya dibatasi seperti berikut.
    dari Perangkat Lunak dan tidak boleh dipakai terpisah atau di proyek lain.
 
 4. Musik
-   Lagu "An Ode To (demo)" oleh Kenji Peach disertakan dengan izin pembuatnya
-   untuk dipakai di Perangkat Lunak ini. Lagu itu tetap milik pembuatnya dan
-   tidak termasuk dalam lisensi ini: jangan mengambilnya untuk dipakai atau
-   dibagikan terpisah. Musik lo-fi sintetis bawaan (dihasilkan oleh kode)
-   mengikuti lisensi Perangkat Lunak.
+   Lagu di folder public/music ("An Ode To (demo)" oleh Kenji Peach, "Chill Day"
+   dan "Me 2" oleh LAKEY INSPIRED, serta "Tuesday at Three") tetap milik
+   pembuat masing-masing dan tidak termasuk dalam lisensi ini. Lagu-lagu itu
+   disertakan hanya untuk dipakai di dalam Perangkat Lunak ini; jangan
+   mengambilnya untuk dipakai atau dibagikan terpisah. Pemegang hak cipta
+   Perangkat Lunak bertanggung jawab memastikan izin/lisensi tiap lagu
+   sebelum rilis publik.
 
 5. Kontribusi
    Bila Anda mengirim perbaikan atau saran kode (misalnya lewat pull request),

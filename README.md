@@ -71,7 +71,7 @@ Semua data **tersimpan di laptopmu**, tanpa akun dan tanpa telemetri. Gratis unt
 | 📖 | **Baca** | Timer Baca (25 menit), Fokus (50 menit), dan Rehat (5 menit), **target halaman harian**, daftar buku dengan progres, dan hitungan hari beruntun membaca |
 | 📺 | **Anime dan manga** | **Hitung mundur episode** berikutnya dari AniList dan **update bab manga** dari MangaDex, dicek tiap 30 menit dan diberi tahu lewat pill. Bahasa bab bisa diubah |
 | 🎵 | **Musik** | Judul, artis, putar/jeda, lagu berikutnya/sebelumnya, **volume Windows**, bilah progres, dan **lirik berjalan** dari LRCLIB (opsional) |
-| 🌸 | **Santai** | **Istirahat mata 20-20-20**, kutipan harian, penanda saat layar direkam, pengingat **reset harian game**, dan **suara latar lo-fi** |
+| 🌸 | **Santai** | **Istirahat mata 20-20-20**, kutipan harian, penanda saat layar direkam, pengingat **reset harian game**, dan **suara latar lo-fi** (malam, hujan, kafe) |
 | 🎙️ | **Mode rapat** | Saat mikrofon dipakai, pengingat dan bunyi ditahan dan pill menjadi indikator rapat |
 | 🎬 | **Mode nonton** | Saat ada video atau game layar penuh, island bersembunyi dan pengingat ditahan |
 | ⚙️ | **Pengaturan** | Jendela sendiri dengan pencarian: tema gelap/terang/ikut sistem, gaya island, isi pill, tutup otomatis, dan notifikasi per fitur |
@@ -129,7 +129,7 @@ Yomi Island juga memeriksa versi baru di GitHub Releases dan memberi tahu lewat 
 | **Windows API** (crate `windows`) | Pemutar media (SMTC), volume utama, baterai, status layar penuh, dan mikrofon |
 | **SQLite** (`tauri-plugin-sql`) | Penyimpanan data lokal |
 | **`tauri-plugin-http`** | Permintaan jaringan yang dibatasi ke daftar host tertentu |
-| **Web Audio** | Musik lo-fi sintetis untuk suara latar |
+| **Web Audio** | Pemutar lagu lo-fi untuk suara latar |
 | **AniList**, **MangaDex**, **LRCLIB** | Sumber data anime, manga, dan lirik (API publik, tanpa kunci) |
 
 ---

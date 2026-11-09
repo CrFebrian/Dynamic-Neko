@@ -56,6 +56,7 @@ const list: Entry[] = [
   { id: 'report', cat: 'tentang', title: 'Laporkan masalah', hint: 'Membuka form GitHub di browser, sudah terisi versi, Windows, dan error terakhir. Periksa dulu sebelum mengirim.', keywords: 'bug github issue lapor error' },
   { id: 'folder', cat: 'tentang', title: 'Folder log & pengaturan', hint: 'error.log berisi catatan error; lampirkan saat melapor. Di folder yang sama ada yomi.db (task, buku, pengaturan).', keywords: 'log error.log yomi.db data explorer' },
   { id: 'theme', cat: 'tampilan', title: 'Tema', hint: 'Gelap, terang, atau mengikuti pengaturan terang/gelap Windows.', keywords: 'dark light gelap terang mode warna' },
+  { id: 'pillSize', cat: 'tampilan', title: 'Ukuran pill', hint: 'Seberapa besar pill saat island tertutup. Pratinjau di bawah memakai ukuran sebenarnya.', keywords: 'pill ukuran besar kecil sedang menengah' },
   { id: 'style', cat: 'tampilan', title: 'Gaya island', hint: 'Dynamic melayang di bawah tepi atas, Notch menempel ke tepi.', keywords: 'dynamic notch bentuk' },
   { id: 'showClock', cat: 'isi', title: 'Tampilkan jam', hint: 'Jam lokal (24 jam) di sisi kanan neko.', keywords: 'clock waktu' },
   { id: 'showBattery', cat: 'isi', title: 'Tampilkan baterai', hint: 'Persentase dan status mengisi di sisi kiri neko. Tidak tampil di PC tanpa baterai.', keywords: 'battery daya charge' },

@@ -6,15 +6,23 @@
  * lebar monitor (titik tengah jendela), dibatasi agar tidak keluar layar.
  */
 import { inTauri } from '../lib/env.ts';
+import { collapsedSize, type PillSize } from '../island/pillSize.ts';
 import { dragX, EDGE_MARGIN, fractionFromX, xFromFraction } from '../lib/placement.ts';
 
 export type WindowMode = 'collapsed' | 'expanded';
 
 /** Ukuran jendela dalam piksel logis. */
-export const WINDOW_SIZE: Record<WindowMode, { w: number; h: number }> = {
-  collapsed: { w: 360, h: 48 },
-  expanded: { w: 460, h: 440 },
-};
+const EXPANDED_SIZE = { w: 460, h: 440 } as const;
+
+let currentPill: PillSize = 'small';
+
+/** Ukuran pill aktif; dipakai saat jendela dalam keadaan tertutup. */
+export function setPillSize(size: PillSize): void {
+  currentPill = size;
+}
+
+export const windowSize = (mode: WindowMode): { w: number; h: number } =>
+  mode === 'expanded' ? EXPANDED_SIZE : collapsedSize(currentPill);
 
 type WindowApi = typeof import('@tauri-apps/api/window');
 
@@ -31,7 +39,7 @@ export async function layoutWindow(mode: WindowMode, fraction = 0.5): Promise<vo
   const monitor = await activeMonitor(api);
   if (!monitor) return;
 
-  const { w, h } = WINDOW_SIZE[mode];
+  const { w, h } = windowSize(mode);
   const scale = monitor.scaleFactor;
   const widthPx = Math.round(w * scale);
   const margin = Math.round(EDGE_MARGIN * scale);
@@ -48,6 +56,14 @@ export async function setWindowVisible(visible: boolean): Promise<void> {
   const win = getCurrentWindow();
   if (visible) await win.show();
   else await win.hide();
+}
+
+/** Pastikan jendela island tampil (dipanggil berkala): pill harus selalu terlihat kecuali mode nonton/rapat menyembunyikannya. */
+export async function ensureVisible(): Promise<void> {
+  if (!inTauri()) return;
+  const { getCurrentWindow } = await import('@tauri-apps/api/window');
+  const win = getCurrentWindow();
+  if (!(await win.isVisible())) await win.show();
 }
 
 export interface DragSession {

@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState, type CSSProperties } from 'react';
 import { estimatePosition, hueFromText } from '../../lib/media.ts';
-import type { MediaAction, MediaInfo } from '../../lib/system.ts';
+import { fetchMediaArt, type MediaAction, type MediaInfo } from '../../lib/system.ts';
+import { coverInitial } from '../coverArt.ts';
 import { mmss } from '../../lib/time.ts';
 import { LyricsBlock } from './LyricsBlock.tsx';
 
@@ -14,6 +15,23 @@ interface Props {
   /** Volume utama 0..100; null bila tidak terbaca. */
   volume: number | null;
   onVolume: (percent: number) => void;
+}
+
+/** Sampul album lagu aktif; diambil ulang tiap judul/artis berganti. null = tidak ada (pakai sampul pengganti). */
+function useCoverArt(title: string, artist: string, active: boolean): string | null {
+  const [art, setArt] = useState<{ key: string; url: string | null } | null>(null);
+  const key = `${title}\u0000${artist}`;
+  useEffect(() => {
+    if (!active) return;
+    let alive = true;
+    fetchMediaArt().then((url) => {
+      if (alive) setArt({ key, url });
+    });
+    return () => {
+      alive = false;
+    };
+  }, [key, active]);
+  return art && art.key === key ? art.url : null;
 }
 
 const Icon = ({ d }: { d: string }) => (
@@ -95,6 +113,7 @@ function VolumeRow({ volume, onVolume, inline = false }: { volume: number | null
 }
 
 export function MusicTab({ now, media, mediaAt, onControl, simulated, volume, onVolume }: Props) {
+  const art = useCoverArt(media?.title ?? '', media?.artist ?? '', media !== null && !simulated);
   if (!media) {
     return (
       <>
@@ -115,7 +134,13 @@ export function MusicTab({ now, media, mediaAt, onControl, simulated, volume, on
   return (
     <>
       <div className="mus">
-        <div className="cover" style={{ '--h': hue } as CSSProperties} aria-hidden="true" />
+        {art ? (
+          <img className="cover" src={art} alt="" draggable={false} />
+        ) : (
+          <div className="cover gen" style={{ '--h': hue } as CSSProperties} aria-hidden="true">
+            {coverInitial(media.title, media.artist)}
+          </div>
+        )}
         <div className="meta">
           <b>{media.title || 'Tanpa judul'}</b>
           <small>{media.artist || 'Artis tidak diketahui'}</small>
