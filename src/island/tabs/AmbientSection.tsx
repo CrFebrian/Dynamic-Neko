@@ -17,14 +17,13 @@ export function AmbientSection() {
     ambient.play(k).catch((e: unknown) => setErr(e instanceof Error ? e.message : 'Audio tidak bisa dimulai.'));
   };
 
-  const current = useSyncExternalStore(ambient.subscribe, () => ambient.current);
   const now = kind ? slot(kind) : undefined;
   const status = err
     ? err
     : loading
       ? 'Menyiapkan musik…'
       : now
-        ? `${now.label}: ${current ? `${current.title}${current.artist ? ` — ${current.artist}` : ''}` : 'memutar'}. Tekan lagi untuk berhenti; musik tetap jalan saat panel ditutup.`
+        ? 'Tekan lagi untuk berhenti musik ini'
         : 'Pilih musik lo-fi untuk menemani.';
 
   return (
