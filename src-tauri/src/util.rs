@@ -34,6 +34,18 @@ pub fn scalar_to_percent(v: f32) -> Option<u8> {
     }
 }
 
+/// Nilai untuk entri Run di registry: jalur exe dalam tanda kutip, supaya spasi di jalur aman.
+/// Jalur kosong, terlalu panjang, atau berisi tanda kutip/karakter kontrol ditolak.
+pub fn autostart_command(exe_path: &str) -> Result<String, String> {
+    if exe_path.trim().is_empty() || exe_path.len() > 4096 {
+        return Err("jalur aplikasi tidak valid".into());
+    }
+    if exe_path.chars().any(|c| c == '"' || c.is_control()) {
+        return Err("jalur aplikasi berisi karakter yang tidak diizinkan".into());
+    }
+    Ok(format!("\"{exe_path}\""))
+}
+
 /// Satu baris, tanpa karakter kontrol, maksimal `max` karakter.
 pub fn sanitize(s: &str, max: usize) -> String {
     let mut out = String::with_capacity(s.len().min(max));
@@ -85,6 +97,19 @@ pub fn tail_chars(s: &str, max: usize) -> String {
 
 #[cfg(test)]
 mod tests {
+    #[test]
+    fn perintah_autostart_dikutip_dan_ditolak_bila_berbahaya() {
+        assert_eq!(
+            autostart_command(r"D:\Project Porto\Yomi Island\yomi-island.exe").unwrap(),
+            r#""D:\Project Porto\Yomi Island\yomi-island.exe""#
+        );
+        assert!(autostart_command("").is_err());
+        assert!(autostart_command("   ").is_err());
+        assert!(autostart_command(r#"C:\a" --x "b.exe"#).is_err());
+        assert!(autostart_command("C:\\a\n.exe").is_err());
+        assert!(autostart_command(&"a".repeat(5000)).is_err());
+    }
+
     use super::*;
 
     #[test]

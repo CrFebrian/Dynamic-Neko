@@ -79,7 +79,6 @@ export function SettingsApp() {
   const [upd, setUpd] = useState<UpdateInfo | null>(null);
   const [checking, setChecking] = useState(false);
   const [updErr, setUpdErr] = useState<string | null>(null);
-
   useEffect(() => {
     let alive = true;
     loadUpdateInfo(getStore())
@@ -152,7 +151,7 @@ export function SettingsApp() {
           className="sx-search"
           type="search"
           value={query}
-          placeholder="Cari pengaturan (Ctrl+F)"
+          placeholder="Cari pengaturan"
           aria-label="Cari pengaturan"
           onChange={(e) => setQuery(e.target.value)}
         />

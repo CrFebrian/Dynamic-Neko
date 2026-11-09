@@ -171,3 +171,11 @@ Daftar uji di laptop Windows:
 ## Website (GitHub Pages)
 
 Situs statis ada di `docs/` (HTML, CSS, JS biasa; tanpa build). Aktifkan: repo Settings > Pages > Source "Deploy from a branch" > Branch `main`, folder `/docs`. Alamatnya `https://crfebrian.github.io/Dynamic-Neko/`. Gratis untuk repo publik; repo privat butuh GitHub Pro. Tombol Unduh mengarah ke `releases/latest`, jadi tidak perlu diubah tiap rilis. Font diambil dari Google Fonts; contoh island di hero memakai data karangan, tanpa permintaan jaringan.
+
+## Jalankan saat Windows mulai (otomatis)
+
+- Tanpa pengaturan di aplikasi: saat versi terpasang dibuka **pertama kali**, `src-tauri/src/autostart.rs` menulis satu nilai `Yomi Island` ke `HKCU\Software\Microsoft\Windows\CurrentVersion\Run` (jalur exe dalam tanda kutip, divalidasi di `util.rs`) dan membuat penanda `autostart-initialized` di folder data aplikasi. Tanpa hak administrator, hanya akun ini.
+- Setelah itu hanya merapikan jalur bila entri menunjuk lokasi lama. Entri yang dihapus atau dinonaktifkan pengguna (Pengaturan Windows > Aplikasi > Startup, atau Task Manager) **tidak pernah dipasang ulang**. Bila pendaftaran gagal, penanda tidak dibuat sehingga dicoba lagi pada pembukaan berikutnya.
+- Tombol Keluar hanya menutup sesi ini; aplikasi terbuka lagi saat Windows dinyalakan berikutnya. Hint-nya di Pengaturan menjelaskan cara mematikan permanen.
+- Mode dev (`tauri dev`) tidak mendaftarkan apa pun.
+- Uji: pasang installer, buka sekali, cek Pengaturan Windows > Aplikasi > Startup (harus ada), restart/keluar-masuk akun (island muncul sendiri). Matikan di Startup, buka lagi aplikasinya, restart: tidak boleh muncul. Uji juga copot pemasangan dan lihat apakah entri Run tertinggal (beri tahu bila iya).

@@ -2,6 +2,7 @@
 // Kontrol jendela tetap dari frontend (src/app/window.ts).
 
 mod applog;
+mod autostart;
 mod system;
 mod util;
 
@@ -99,6 +100,9 @@ pub fn run() {
         .plugin(tauri_plugin_http::init())
         .invoke_handler(tauri::generate_handler![system_snapshot, media_control, set_volume, open_settings, quit_app, log_error, read_error_log, open_data_dir, open_url])
         .setup(|app| {
+            if let Ok(dir) = applog::dir(app.handle()) {
+                autostart::init_default(&dir);
+            }
             let toggle = MenuItem::with_id(app, "toggle", "Tampilkan / sembunyikan island", true, None::<&str>)?;
             let settings = MenuItem::with_id(app, "settings", "Pengaturan", true, None::<&str>)?;
             let quit = MenuItem::with_id(app, "quit", "Keluar", true, None::<&str>)?;

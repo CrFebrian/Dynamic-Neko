@@ -34,6 +34,7 @@ Tautan di atas membuka halaman rilis GitHub. Ambil berkas **`…-setup.exe`** te
 1. Unduh berkas `…-setup.exe` dari halaman rilis.
 2. Jalankan berkas tersebut. Jika Windows menampilkan **"Windows protected your PC"**, pilih **Informasi lebih lanjut**, lalu **Tetap jalankan**.
 3. Setelah selesai, pill kecil muncul di tengah tepi atas layar. Klik untuk membuka panelnya.
+4. Yomi Island **terbuka sendiri setiap Windows dinyalakan**. Tombol **Keluar** di Pengaturan hanya menutupnya untuk sesi itu. Untuk menghentikan selamanya, matikan di Pengaturan Windows → Aplikasi → Startup, atau copot pemasangan.
 
 **Syarat:** Windows 10 atau 11 (64-bit).
 Peringatan SmartScreen itu wajar, karena installer belum bertanda tangan digital. Unduh hanya dari halaman rilis resmi di atas.
