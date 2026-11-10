@@ -77,3 +77,6 @@
 @keyframes nk-in { from { opacity: 0; transform: scale(0.96); } to { opacity: 1; transform: none; } }
 @keyframes nk-out { from { opacity: 1; } to { opacity: 0; } }
 @media (prefers-reduced-motion: reduce) { .nk-out, .nk-in { animation: none; } }
+
+/* Hemat GPU: saat pill diam dan kursor tidak di atasnya, animasi neko dijeda (pose tetap tampil). */
+.pill.idle:not(:hover) [class*='nk-'] { animation-play-state: paused; }

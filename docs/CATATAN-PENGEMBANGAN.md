@@ -185,3 +185,21 @@ Situs statis ada di `docs/` (HTML, CSS, JS biasa; tanpa build). Aktifkan: repo S
 - **Pill selalu tampil**: deteksi layar penuh tidak lagi memakai status `QUNS_BUSY` (ikut aktif untuk jendela biasa, jadi pill ikut tersembunyi). Kini hanya game/video layar penuh eksklusif dan mode presentasi. Ditambah penjaga 5 detik yang menampilkan jendela lagi bila tersembunyi tanpa alasan. Uji: buka peramban maksimal/tab apa pun, pill harus tetap terlihat; putar video layar penuh (F11 di YouTube, atau game), pill bersembunyi lalu muncul lagi setelah keluar.
 - **Ukuran pill**: Pengaturan > Tampilan > Ukuran pill (Kecil = bawaan, Menengah, Sedang) dengan pratinjau ukuran sebenarnya. Uji: ganti ukuran, pill langsung berubah, posisi tetap di tengah tepi atas, panel tetap terbuka normal.
 - **Suara latar**: tetap tiga pilihan Lo-fi malam, hujan, kafe, kini memutar lagu file: malam = An Ode To, hujan = Tuesday at Three, kafe = Chill Day lalu Me 2 (berurutan, mengulang). Pemetaan ada di `SLOTS` di `src/features/ambient/tracks.ts`. Generator musik sintetis dihapus.
+
+## Revisi: hemat memori
+
+- **Lagu di-stream** lewat elemen `<audio>` (bukan didekode utuh ke Web Audio, yang memakan sekitar 70 MB per lagu 3 menit). Uji: ukur private memory proses `renderer` milik Yomi (perintah PowerShell di bawah) saat diam vs musik nyala; selisihnya harus kecil (beberapa MB). Cek juga: satu lagu mengulang mulus (malam, hujan), kafe pindah Chill Day ke Me 2 lalu kembali, berhenti benar-benar diam, volume berfungsi.
+- **Animasi neko dijeda** saat pill diam dan kursor tidak di atasnya (pose tetap tampil, "z" tidur muncul saat kursor diarahkan). Tujuannya menurunkan beban GPU Process yang tadi 2–3% terus-menerus.
+- Dampak yang perlu diperhatikan: elemen `<audio>` bisa terdaftar sebagai sesi media Windows, jadi tab Musik mungkin menampilkan lagu lo-fi Yomi sendiri sebagai "Sedang diputar". Kabari bila mengganggu.
+
+Mengukur memori (hanya proses milik Yomi):
+
+```
+Get-CimInstance Win32_Process -Filter "Name='msedgewebview2.exe'" | Where-Object { $_.CommandLine -match 'yomiisland' } | ForEach-Object { $p = Get-Process -Id $_.ProcessId; [pscustomobject]@{ Id=$p.Id; Jenis=$(if ($_.CommandLine -match '--type=(\S+)') { $Matches[1] } else { 'browser' }); PrivateMB=[int]($p.PrivateMemorySize64/1MB) } }
+```
+
+Sebelum perubahan (island diam / musik nyala): gpu-process 93/98, renderer 52/119, browser 34/34 MB.
+
+## Revisi: Pengaturan tidak berkedip
+
+- Jendela Pengaturan kini dibuat tersembunyi dan baru ditampilkan setelah pengaturan (tema) dimuat dan satu frame tergambar; tidak ada lagi kedipan putih lalu hitam. Cadangan: bila halaman gagal memuat, Rust menampilkannya sendiri setelah 4 detik. Uji: buka Pengaturan berkali-kali di tema gelap dan terang; jendela muncul langsung dengan isi penuh (ada jeda sebentar sebelum muncul karena halaman dimuat dulu).
