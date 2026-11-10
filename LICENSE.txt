@@ -1,72 +1,105 @@
-DRAF - belum ditinjau ahli hukum. Sebelum rilis publik, sebaiknya ditinjau
-oleh orang yang paham hukum hak cipta di tempat Anda.
+YOMI ISLAND
+Lisensi Sumber Terlihat (Source-Available) untuk Pemakaian Pribadi
 
-YOMI ISLAND - LISENSI SUMBER TERLIHAT (SOURCE-AVAILABLE), PEMAKAIAN PRIBADI
 Hak cipta (c) 2026 CrFebrian. Seluruh hak dilindungi, kecuali yang diberikan
 secara tegas di bawah ini.
 
-Ini BUKAN lisensi sumber terbuka (open source). Kode sumber boleh dibaca, tetapi
-pemakaiannya dibatasi seperti berikut.
+Singkatnya: kodenya boleh Anda baca, bangun, dan utak-atik untuk diri sendiri.
+Menjual, membagikan ulang, atau meniru Yomi Island tidak boleh tanpa izin.
 
+Catatan: ini BUKAN lisensi sumber terbuka (open source). Kode sumber dibuka
+supaya bisa dipelajari, bukan supaya bisa dipakai ulang secara bebas.
+
+------------------------------------------------------------------------
 1. Yang boleh Anda lakukan (pribadi dan non-komersial)
+------------------------------------------------------------------------
    a. Membaca dan mempelajari kode sumber.
-   b. Mengunduh, membangun (build), dan menjalankan Yomi Island ("Perangkat
-      Lunak") di perangkat milik Anda sendiri, tanpa biaya.
-   c. Mengubah salinan Anda sendiri untuk keperluan pribadi.
-   d. Mengutip bagian kecil kode dengan menyebut sumbernya, untuk belajar atau
-      membahas.
+   b. Mengunduh, membangun (build), dan menjalankan Yomi Island
+      ("Perangkat Lunak") di perangkat milik Anda sendiri, gratis.
+   c. Mengubah salinan Anda sendiri sesuai selera, untuk keperluan pribadi.
+   d. Mengutip bagian kecil kode dengan menyebut sumbernya, untuk belajar
+      atau membahas.
 
-2. Yang tidak boleh Anda lakukan tanpa izin tertulis dari pemegang hak cipta
+------------------------------------------------------------------------
+2. Yang butuh izin tertulis dari pemegang hak cipta
+------------------------------------------------------------------------
    a. Menjual, menyewakan, atau meminta bayaran atas Perangkat Lunak atau
       turunannya, atau memakainya untuk tujuan komersial.
-   b. Mendistribusikan ulang Perangkat Lunak atau versi yang Anda ubah, dalam
-      bentuk kode maupun installer, termasuk mengunggahnya ke toko aplikasi
-      atau situs lain. Membagikan tautan ke rilis resmi diperbolehkan.
-   c. Menerbitkan karya turunan atau meniru produk ini dengan nama, maskot,
-      atau tampilan yang dapat dikira sebagai Yomi Island.
+   b. Mendistribusikan ulang Perangkat Lunak atau versi yang Anda ubah,
+      baik berupa kode maupun installer, termasuk mengunggahnya ke toko
+      aplikasi atau situs lain. Membagikan tautan ke rilis resmi boleh.
+   c. Menerbitkan karya turunan, atau membuat produk tiruan yang memakai
+      nama, maskot, atau tampilan yang bisa disangka Yomi Island.
    d. Menghapus atau mengubah pemberitahuan hak cipta dan atribusi.
 
+------------------------------------------------------------------------
 3. Maskot, ikon, dan aset visual
-   Maskot neko, ikon, dan seluruh aset visual (folder assets dan src-tauri/icons)
-   adalah milik pemegang hak cipta. Aset ini dilisensikan hanya sebagai bagian
-   dari Perangkat Lunak dan tidak boleh dipakai terpisah atau di proyek lain.
+------------------------------------------------------------------------
+   Si neko dan seluruh aset visual (folder assets dan src-tauri/icons)
+   adalah milik pemegang hak cipta. Aset ini dilisensikan hanya sebagai
+   bagian dari Perangkat Lunak, dan tidak boleh dipakai terpisah atau di
+   proyek lain.
 
+------------------------------------------------------------------------
 4. Musik
+------------------------------------------------------------------------
    Lagu di folder public/music ("An Ode To (demo)" oleh Kenji Peach, "Chill Day"
-   dan "Me 2" oleh LAKEY INSPIRED, serta "Tuesday at Three") tetap milik
-   pembuat masing-masing dan tidak termasuk dalam lisensi ini. Lagu-lagu itu
-   disertakan hanya untuk dipakai di dalam Perangkat Lunak ini; jangan
-   mengambilnya untuk dipakai atau dibagikan terpisah. Pemegang hak cipta
-   Perangkat Lunak bertanggung jawab memastikan izin/lisensi tiap lagu
-   sebelum rilis publik.
+   dan "Me 2" oleh LAKEY INSPIRED, serta "Tuesday at Three") adalah milik
+   pembuat masing-masing dan TIDAK termasuk dalam lisensi ini. Lagu-lagu itu
+   disertakan hanya sebagai suara latar di dalam Perangkat Lunak; jangan
+   mengambilnya untuk dipakai, dibagikan, atau diunggah terpisah. Hak atas
+   lagu tetap pada pembuatnya.
 
+------------------------------------------------------------------------
 5. Kontribusi
-   Bila Anda mengirim perbaikan atau saran kode (misalnya lewat pull request),
-   Anda memberi pemegang hak cipta hak yang tidak eksklusif dan bebas biaya
-   untuk memakai, mengubah, dan menyertakannya dalam Perangkat Lunak.
+------------------------------------------------------------------------
+   Terima kasih bila Anda mau membantu. Dengan mengirim perbaikan atau saran
+   kode (misalnya lewat pull request), Anda memberi pemegang hak cipta, hak
+   yang tidak eksklusif dan bebas biaya untuk memakai, mengubah, dan
+   menyertakannya dalam Perangkat Lunak. Hak atas kontribusi Anda tetap
+   milik Anda.
 
+------------------------------------------------------------------------
 6. Komponen pihak ketiga
-   Perangkat Lunak memuat komponen sumber terbuka (antara lain Tauri, React,
-   dan pustaka Rust/npm lain) yang tunduk pada lisensinya masing-masing. Daftar
-   lengkapnya menyusul di THIRD_PARTY_NOTICES. Lisensi ini tidak mengubah hak
-   Anda atas komponen tersebut.
+------------------------------------------------------------------------
+   Yomi Island dibangun di atas komponen sumber terbuka, antara lain Tauri,
+   React, serta pustaka Rust dan npm lainnya. Masing-masing tunduk pada
+   lisensinya sendiri, dan lisensi ini tidak mengubah hak Anda atas komponen
+   tersebut. Daftar lengkap dan teks lisensinya ada di berkas
+   THIRD_PARTY_NOTICES.md.
 
-7. Data dan layanan online
-   Task, buku, dan pengaturan disimpan lokal di perangkat Anda. Perangkat Lunak
-   menghubungi layanan pihak ketiga hanya untuk fitur yang Anda pakai: AniList
-   (anime), MangaDex (manga), LRCLIB (lirik, bila dinyalakan), dan GitHub
-   (cek versi baru, bila dinyalakan). Tidak ada telemetri. Yomi Island mendaftarkan dirinya agar terbuka saat Windows
-   dinyalakan (entri Run di akun Anda sendiri); Anda bisa mematikannya kapan saja di
-   Pengaturan Windows > Aplikasi > Startup. Perubahan di masa
-   depan akan dicatat di README dan lisensi ini.
+------------------------------------------------------------------------
+7. Data Anda dan layanan online
+------------------------------------------------------------------------
+   Task, buku, dan pengaturan disimpan lokal di perangkat Anda. Tidak ada
+   telemetri, akun, maupun iklan.
 
+   Perangkat Lunak hanya menghubungi layanan pihak ketiga untuk fitur yang
+   Anda nyalakan: AniList (jadwal tayang anime), MangaDex (update chapter
+   manga), LRCLIB (lirik lagu), dan GitHub (memeriksa versi baru di halaman
+   rilis; bisa dimatikan di Pengaturan). Layanan tersebut tunduk pada
+   ketentuan dan kebijakan privasinya masing-masing.
+
+   Mode rapat hanya mendeteksi apakah mikrofon sedang dipakai aplikasi lain.
+   Perangkat Lunak tidak merekam dan tidak menyimpan suara.
+
+   Bila ada perubahan pada hal di atas, akan dicatat di README dan lisensi
+   ini.
+
+------------------------------------------------------------------------
 8. Tanpa jaminan
-   Perangkat Lunak disediakan "apa adanya", tanpa jaminan apa pun. Pemegang hak
-   cipta tidak bertanggung jawab atas kerugian yang timbul dari pemakaian,
-   sejauh diizinkan hukum yang berlaku.
+------------------------------------------------------------------------
+   Perangkat Lunak disediakan "apa adanya", tanpa jaminan apa pun. Pemegang
+   hak cipta tidak bertanggung jawab atas kerugian yang timbul dari
+   pemakaian, sejauh diizinkan hukum yang berlaku.
 
+------------------------------------------------------------------------
 9. Pengakhiran
+------------------------------------------------------------------------
    Hak Anda berakhir otomatis bila Anda melanggar syarat di atas.
 
-Kontak dan izin khusus (misalnya pemakaian komersial): buka issue di
+------------------------------------------------------------------------
+Kontak dan izin khusus
+------------------------------------------------------------------------
+Butuh izin khusus, misalnya untuk pemakaian komersial? Buka issue di:
 https://github.com/CrFebrian/Dynamic-Neko/issues

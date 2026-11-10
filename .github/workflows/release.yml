@@ -1,0 +1,35 @@
+name: Release
+
+# Membangun installer Windows dan menerbitkannya di GitHub Releases saat tag v* didorong.
+on:
+  push:
+    tags: ['v*']
+
+permissions:
+  contents: write
+
+jobs:
+  windows:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: swatinem/rust-cache@v2
+        with:
+          workspaces: src-tauri
+      - run: npm ci
+      - run: npm test
+      - run: npm run typecheck
+      - uses: tauri-apps/tauri-action@v0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tagName: ${{ github.ref_name }}
+          releaseName: 'Yomi Island ${{ github.ref_name }}'
+          releaseBody: 'Installer Windows (`…-setup.exe`). Jika SmartScreen muncul: Informasi lebih lanjut, lalu Tetap jalankan (installer belum bertanda tangan digital).'
+          releaseDraft: false
+          prerelease: false
