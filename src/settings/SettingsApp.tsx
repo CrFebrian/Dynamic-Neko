@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState, type CSSProperties, type ReactNode } from 'react';
-import { quitApp } from '../app/window.ts';
+import { quitApp, revealSelf } from '../app/window.ts';
 import { Neko } from '../mascot/Neko.tsx';
 import { CAT_ICON } from './icons.tsx';
 import { CATS, entry, GROUPS, catLabel, searchSettings, type Cat } from './catalog.ts';
@@ -72,6 +72,19 @@ const H = (id: string) => entry(id).hint;
 
 export function SettingsApp() {
   const { cfg, update, ready } = useSettings();
+
+  // Jendela dibuat tersembunyi; tampilkan setelah pengaturan (tema) dimuat dan satu frame tergambar.
+  useEffect(() => {
+    if (!ready) return;
+    let f2 = 0;
+    const f1 = requestAnimationFrame(() => {
+      f2 = requestAnimationFrame(() => void revealSelf().catch((e: unknown) => console.error('Gagal menampilkan Pengaturan:', e)));
+    });
+    return () => {
+      cancelAnimationFrame(f1);
+      cancelAnimationFrame(f2);
+    };
+  }, [ready]);
   useTheme(cfg.theme);
   const [cat, setCat] = useState<Cat>('umum');
   const [query, setQuery] = useState('');

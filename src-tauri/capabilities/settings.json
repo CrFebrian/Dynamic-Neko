@@ -7,6 +7,8 @@
   ],
   "permissions": [
     "core:event:default",
+    "core:window:allow-show",
+    "core:window:allow-set-focus",
     "sql:default",
     "sql:allow-execute",
     {

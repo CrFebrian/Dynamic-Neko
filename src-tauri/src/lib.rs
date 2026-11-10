@@ -23,12 +23,23 @@ fn show_settings(app: &tauri::AppHandle) -> tauri::Result<()> {
         win.set_focus()?;
         return Ok(());
     }
-    tauri::WebviewWindowBuilder::new(app, SETTINGS_LABEL, tauri::WebviewUrl::App("index.html".into()))
+    let win = tauri::WebviewWindowBuilder::new(app, SETTINGS_LABEL, tauri::WebviewUrl::App("index.html".into()))
         .title("Pengaturan Yomi Island")
         .inner_size(900.0, 640.0)
         .min_inner_size(640.0, 460.0)
         .center()
+        // Tersembunyi sampai halaman siap (frontend memanggil show), agar tidak berkedip putih/hitam.
+        .visible(false)
         .build()?;
+    // Jaga-jaga bila frontend gagal memuat: tampilkan sendiri setelah beberapa detik.
+    let fallback = win.clone();
+    std::thread::spawn(move || {
+        std::thread::sleep(std::time::Duration::from_secs(4));
+        if !fallback.is_visible().unwrap_or(true) {
+            let _ = fallback.show();
+            let _ = fallback.set_focus();
+        }
+    });
     Ok(())
 }
 

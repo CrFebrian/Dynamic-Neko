@@ -66,6 +66,15 @@ export async function ensureVisible(): Promise<void> {
   if (!(await win.isVisible())) await win.show();
 }
 
+/** Tampilkan dan fokuskan jendela ini (dipakai jendela Pengaturan setelah halamannya siap). */
+export async function revealSelf(): Promise<void> {
+  if (!inTauri()) return;
+  const { getCurrentWindow } = await import('@tauri-apps/api/window');
+  const win = getCurrentWindow();
+  await win.show();
+  await win.setFocus();
+}
+
 export interface DragSession {
   /** Geser jendela sejauh `deltaCssPx` dari posisi awal (dibatasi ke dalam monitor). */
   moveTo(deltaCssPx: number): void;
