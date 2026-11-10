@@ -2,23 +2,22 @@ import { slot, trackAt, type AmbientKind, type FileTrack } from './tracks.ts';
 
 export type { AmbientKind };
 
-/** Banyak lagu terdekode yang disimpan di memori (lagu lain didekode ulang saat dibutuhkan). */
-const CACHE_MAX = 2;
-
 type Listener = () => void;
 
-/** Mesin suara latar berbasis Web Audio: memutar daftar lagu satu pilihan, berurutan dan berulang. */
+/**
+ * Mesin suara latar. Lagu di-stream lewat elemen <audio> (hanya buffer kecil di memori),
+ * bukan didekode utuh ke Web Audio yang memakan puluhan MB per lagu.
+ * Satu pilihan memutar daftar lagunya berurutan lalu mengulang.
+ */
 class AmbientEngine {
-  private ctx: AudioContext | null = null;
-  private src: AudioBufferSourceNode | null = null;
-  private gain: GainNode | null = null;
+  private audio: HTMLAudioElement | null = null;
   private listeners = new Set<Listener>();
   kind: AmbientKind | null = null;
   /** Lagu yang sedang diputar. */
   current: FileTrack | null = null;
-  /** Lagu sedang dimuat/didekode. */
+  /** Lagu sedang dimuat sebelum bunyi. */
   loading = false;
-  private cache = new Map<string, AudioBuffer>();
+  private index = 0;
   /** Nomor permintaan terbaru: permintaan lama yang selesai belakangan dibuang. */
   private token = 0;
   volume = 0.4;
@@ -31,76 +30,77 @@ class AmbientEngine {
     this.listeners.forEach((l) => l());
   }
 
+  private el(): HTMLAudioElement {
+    if (this.audio) return this.audio;
+    const a = new Audio();
+    a.preload = 'auto';
+    a.onplaying = () => {
+      if (this.loading) {
+        this.loading = false;
+        this.emit();
+      }
+    };
+    a.onended = () => this.next();
+    a.onerror = () => {
+      console.error('Gagal memutar lagu:', this.current?.file, a.error);
+      this.stop();
+    };
+    this.audio = a;
+    return a;
+  }
+
   /** Mulai (atau ganti) pilihan. Harus dipanggil dari gerakan pengguna agar audio diizinkan. */
   async play(kind: AmbientKind): Promise<void> {
     const mine = ++this.token;
-    this.stopSource();
-    this.kind = null;
-    this.current = null;
-    const ctx = (this.ctx ??= new AudioContext());
-    if (ctx.state === 'suspended') await ctx.resume();
-    await this.playIndex(ctx, kind, 0, mine);
+    this.index = 0;
+    await this.start(kind, mine);
   }
 
-  private async playIndex(ctx: AudioContext, kind: AmbientKind, index: number, mine: number): Promise<void> {
-    const tr = trackAt(kind, index);
+  private async start(kind: AmbientKind, mine: number): Promise<void> {
+    const tr = trackAt(kind, this.index);
     if (!tr) throw new Error(`Pilihan suara latar tidak dikenal: ${kind}`);
-    let buf = this.cache.get(tr.id);
-    if (!buf) {
-      this.loading = true;
-      this.emit();
-      try {
-        buf = await this.load(ctx, tr);
-      } finally {
-        if (mine === this.token) this.loading = false;
-      }
-      this.remember(tr.id, buf);
-    }
-    if (mine !== this.token) {
-      this.emit();
-      return; // pengguna sudah memilih/menghentikan yang lain
-    }
-    const src = ctx.createBufferSource();
-    src.buffer = buf;
-    const gain = ctx.createGain();
-    gain.gain.value = this.volume;
-    src.connect(gain).connect(ctx.destination);
+    const a = this.el();
     const total = slot(kind)?.playlist.length ?? 1;
-    src.onended = () => {
-      if (mine !== this.token) return; // dihentikan/diganti oleh pengguna
-      this.playIndex(ctx, kind, (index + 1) % total, mine).catch((e: unknown) => {
-        console.error('Gagal memutar lagu berikutnya:', e);
-        if (mine === this.token) this.stop();
-      });
-    };
-    src.start();
-    this.src = src;
-    this.gain = gain;
+    a.loop = total === 1; // satu lagu: ulang langsung, tanpa memuat ulang
+    a.volume = this.volume;
+    a.src = `/music/${tr.file}`;
     this.kind = kind;
     this.current = tr;
+    this.loading = true;
+    this.emit();
+    try {
+      await a.play();
+    } catch (e) {
+      if (mine === this.token) this.stop();
+      // AbortError = diganti/dihentikan pengguna sebelum sempat bunyi; bukan kegagalan.
+      if (e instanceof DOMException && e.name === 'AbortError') return;
+      throw e instanceof Error ? e : new Error('Audio tidak bisa dimulai.');
+    }
+    if (mine !== this.token) return;
+    this.loading = false;
     this.emit();
   }
 
-  private remember(id: string, buf: AudioBuffer): void {
-    this.cache.delete(id);
-    this.cache.set(id, buf);
-    while (this.cache.size > CACHE_MAX) {
-      const oldest = this.cache.keys().next().value;
-      if (oldest === undefined) break;
-      this.cache.delete(oldest);
-    }
-  }
-
-  private async load(ctx: AudioContext, tr: FileTrack): Promise<AudioBuffer> {
-    const res = await fetch(`/music/${tr.file}`);
-    if (!res.ok) throw new Error(`Lagu "${tr.title}" tidak bisa dimuat (HTTP ${res.status}).`);
-    return ctx.decodeAudioData(await res.arrayBuffer());
+  private next(): void {
+    if (this.kind === null) return;
+    const total = slot(this.kind)?.playlist.length ?? 1;
+    this.index = (this.index + 1) % total;
+    const mine = ++this.token;
+    this.start(this.kind, mine).catch((e: unknown) => {
+      console.error('Gagal memutar lagu berikutnya:', e);
+      if (mine === this.token) this.stop();
+    });
   }
 
   stop(): void {
     this.token++;
     this.loading = false;
-    this.stopSource();
+    const a = this.audio;
+    if (a) {
+      a.pause();
+      a.removeAttribute('src'); // lepaskan buffer
+      a.load();
+    }
     this.kind = null;
     this.current = null;
     this.emit();
@@ -108,21 +108,8 @@ class AmbientEngine {
 
   setVolume(v: number): void {
     this.volume = Math.min(1, Math.max(0, v));
-    if (this.gain) this.gain.gain.value = this.volume;
+    if (this.audio) this.audio.volume = this.volume;
     this.emit();
-  }
-
-  private stopSource(): void {
-    if (this.src) this.src.onended = null;
-    try {
-      this.src?.stop();
-    } catch {
-      /* sudah berhenti */
-    }
-    this.src?.disconnect();
-    this.gain?.disconnect();
-    this.src = null;
-    this.gain = null;
   }
 }
 
