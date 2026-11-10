@@ -203,3 +203,9 @@ Sebelum perubahan (island diam / musik nyala): gpu-process 93/98, renderer 52/11
 ## Revisi: Pengaturan tidak berkedip
 
 - Jendela Pengaturan kini dibuat tersembunyi dan baru ditampilkan setelah pengaturan (tema) dimuat dan satu frame tergambar; tidak ada lagi kedipan putih lalu hitam. Cadangan: bila halaman gagal memuat, Rust menampilkannya sendiri setelah 4 detik. Uji: buka Pengaturan berkali-kali di tema gelap dan terang; jendela muncul langsung dengan isi penuh (ada jeda sebentar sebelum muncul karena halaman dimuat dulu).
+
+## Cara merilis versi baru
+
+1. Naikkan versi di `package.json`, `package-lock.json`, `src-tauri/tauri.conf.json`, `src-tauri/Cargo.toml`, dan `src-tauri/Cargo.lock` (entri `yomi-island`).
+2. Tulis catatan rilis di `docs/rilis/vX.Y.Z.md` (apa yang baru, perbaikan bug).
+3. Merge ke `main`, lalu `git tag vX.Y.Z` dan `git push origin vX.Y.Z`. GitHub Actions membangun installer dan memasang isi catatan itu ke halaman rilis.

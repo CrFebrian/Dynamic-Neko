@@ -33,3 +33,14 @@ jobs:
           releaseBody: 'Installer Windows (`…-setup.exe`). Jika SmartScreen muncul: Informasi lebih lanjut, lalu Tetap jalankan (installer belum bertanda tangan digital).'
           releaseDraft: false
           prerelease: false
+      - name: Pasang catatan rilis dari docs/rilis
+        shell: bash
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          f="docs/rilis/${{ github.ref_name }}.md"
+          if [ -f "$f" ]; then
+            gh release edit "${{ github.ref_name }}" --notes-file "$f"
+          else
+            echo "Tidak ada $f; catatan rilis bawaan dipakai."
+          fi
