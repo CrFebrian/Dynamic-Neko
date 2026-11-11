@@ -209,3 +209,7 @@ Sebelum perubahan (island diam / musik nyala): gpu-process 93/98, renderer 52/11
 1. Naikkan versi di `package.json`, `package-lock.json`, `src-tauri/tauri.conf.json`, `src-tauri/Cargo.toml`, dan `src-tauri/Cargo.lock` (entri `yomi-island`).
 2. Tulis catatan rilis di `docs/rilis/vX.Y.Z.md` (apa yang baru, perbaikan bug).
 3. Merge ke `main`, lalu `git tag vX.Y.Z` dan `git push origin vX.Y.Z`. GitHub Actions membangun installer dan memasang isi catatan itu ke halaman rilis.
+
+## Daftar periksa menaikkan versi
+
+Naikkan nomor di **lima** tempat: `package.json`, `package-lock.json`, `src-tauri/tauri.conf.json`, `src-tauri/Cargo.toml` (+ `Cargo.lock`), dan **`src/lib/version.ts`** (dipakai cek pembaruan). Lalu buat `docs/rilis/vX.Y.Z.md`, jalankan `npm test`, baru beri tag. (v0.1.1 pertama gagal di CI karena `version.ts` terlewat; test versi menangkapnya.)
